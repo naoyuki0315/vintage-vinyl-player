@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.2.8)
- * Fix: Label centering, Mobile MP3 support, and Responsive layout
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.2.9)
+ * Fix: Tone arm base size down, Label subText positioning
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -78,25 +78,21 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
       
-      {/* Vinyl Player Body */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_30px_60px_rgba(0,0,0,0.9)] mt-4 mb-8 border border-white/5 overflow-visible">
         
-        {/* Record Disc */}
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_50px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.8) 38.2%, transparent 39%), repeating-radial-gradient(circle at center, #080808 0px, #080808 1px, #141414 1.5px, #080808 2px), radial-gradient(circle at center, #1c1c1c 0%, #000 100%)` }}>
           <div className="absolute inset-0 rounded-full opacity-[0.08] pointer-events-none z-10" style={{ background: "conic-gradient(from 25deg, transparent, #fff 50deg, transparent 120deg, #fff 210deg, transparent)" }} />
           
-          {/* Label Container */}
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_15px_rgba(0,0,0,0.6)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
             
-            {/* Design Elements (Parody Logos) */}
             <div className="absolute inset-0 pointer-events-none">
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
-                  <div className="absolute top-0 w-full h-[52%] flex flex-col items-center justify-end pb-[10%] z-10 text-white">
-                      <span className="text-[10px] md:text-[12px] mb-1">♛</span>
+                  <div className="absolute top-0 w-full h-[52%] flex flex-col items-center justify-end pb-[8%] z-10 text-white">
+                      <span className="text-[10px] md:text-[12px] mb-0.5">♛</span>
                       <div className="flex items-center gap-2">
                         <span className="text-[14px] md:text-[16px]">†</span>
                         <div className="flex flex-col items-center">
@@ -108,7 +104,7 @@ export default function App() {
                   </div>
                 </div>
               )}
-
+              {/* ... 他のデザイン要素 (Red-Chkr, Vee-Jay, Rsg-Sun) は変更なし ... */}
               {selectedLabel === "Red-Chkr" && (
                 <div className="absolute top-0 w-full h-full pointer-events-none">
                   <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
@@ -118,7 +114,6 @@ export default function App() {
                   <div className="absolute w-full text-center text-white text-[2.5px] md:text-[3px] font-bold tracking-[0.25em]" style={{ top: "40%" }}>RECORDING CO.</div>
                 </div>
               )}
-
               {selectedLabel === "Vee-Jay" && (
                 <div className="absolute top-0 w-full h-full pointer-events-none flex flex-col items-center">
                   <div className="absolute inset-[5%] rounded-full border border-white/30" />
@@ -130,7 +125,6 @@ export default function App() {
                   </div>
                 </div>
               )}
-
               {selectedLabel === "Rsg-Sun" && (
                 <div className="absolute top-0 w-full h-full pointer-events-none flex flex-col items-center">
                   <div className="absolute top-0 w-full h-full opacity-[0.18]" style={{ background: "repeating-conic-gradient(from 270deg, #3f2b1d 0deg 7.5deg, transparent 7.5deg 20deg)", maskImage: "linear-gradient(to bottom, black 50%, transparent 55%)" }} />
@@ -143,19 +137,22 @@ export default function App() {
               )}
             </div>
 
-            {/* Centered Song & Artist Text */}
-            <div className="z-10 text-center px-1 flex flex-col items-center justify-center w-full h-full pt-[22%]">
-              <div className="font-black tracking-tight leading-none whitespace-nowrap overflow-hidden w-[90%]" 
-                style={{ 
-                  color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor,
-                  fontSize: songTitle.length > 20 ? '6px' : '8px' 
-                }}>
-                {selectedLabel === "2120" ? songTitle : `"${songTitle}"`}
+            {/* Label Text Layer: Flexible layout to push subText down */}
+            <div className="z-10 flex flex-col items-center justify-between w-full h-full pt-[52%] pb-[12%] px-1">
+              <div className="flex flex-col items-center w-full">
+                <div className="font-black tracking-tight leading-none whitespace-nowrap overflow-hidden w-[90%] text-center" 
+                  style={{ 
+                    color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor,
+                    fontSize: songTitle.length > 20 ? '6px' : '8.5px' 
+                  }}>
+                  {selectedLabel === "2120" ? songTitle : `"${songTitle}"`}
+                </div>
+                <div className="text-[7.5px] md:text-[8px] font-bold mt-1.5 uppercase text-center" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : (labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.9)" : "rgba(63,43,29,0.9)") }}>
+                  {bandName}
+                </div>
               </div>
-              <div className="text-[7px] md:text-[7.5px] font-bold mt-1 uppercase" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : (labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.9)" : "rgba(63,43,29,0.9)") }}>
-                {bandName}
-              </div>
-              <div className="text-[2.5px] md:text-[3px] mt-1 opacity-60 font-black tracking-widest uppercase" style={{ color: labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.7)" : "rgba(63,43,29,0.7)" }}>
+              {/* This will stay at the bottom of the flex container */}
+              <div className="text-[2.8px] md:text-[3.2px] font-black tracking-[0.2em] uppercase text-center opacity-70" style={{ color: labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.8)" : "rgba(63,43,29,0.8)" }}>
                 {labelStyles[selectedLabel].subText}
               </div>
             </div>
@@ -164,38 +161,36 @@ export default function App() {
           </div>
         </div>
 
-        {/* Tone Arm Base */}
-        <div className="absolute w-12 h-12 md:w-16 md:h-16 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }}>
+        {/* Tone Arm Base: Smaller on Mobile */}
+        <div className="absolute w-10 h-10 md:w-16 md:h-16 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }}>
           <div className="w-full h-full flex items-center justify-center">
              <div className="w-[60%] h-[60%] rounded-full bg-zinc-900 shadow-inner" />
           </div>
         </div>
 
-        {/* Tone Arm Handle */}
+        {/* Tone Arm Handle: Positioned relative to base */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
             top: "10.5%", 
             right: "10.5%", 
             width: "75%", 
-            height: "10px", 
+            height: "8px", 
             transformOrigin: "center right", 
             transform: `rotate(${isPlaying ? -77 : -90}deg)` 
           }}>
           <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full shadow-md" />
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-6 md:w-16 md:h-8 bg-zinc-950 rounded-sm shadow-xl border-r border-zinc-800 flex items-center justify-start pl-2" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }}> 
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-5 md:w-16 md:h-8 bg-zinc-950 rounded-sm shadow-xl border-r border-zinc-800 flex items-center justify-start pl-2" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }}> 
               <div className="absolute -bottom-1 left-2 w-0.5 h-2 md:w-1 md:h-3 bg-zinc-400 rounded-full opacity-80" /> 
           </div>
         </div>
       </div>
 
-      {/* Controls Container */}
       <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
         <div className="flex justify-center">
           <button onClick={togglePlay} disabled={!audioUrl} className={`w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
             {isPlaying ? "STOP" : "PLAY"}
           </button>
         </div>
-
         <div className="grid grid-cols-2 gap-2">
           {Object.keys(labelStyles).map((style) => (
             <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:border-zinc-500'}`}>
@@ -204,23 +199,12 @@ export default function App() {
             </button>
           ))}
         </div>
-
         <div className="space-y-2 pt-2 border-t border-white/5">
-          <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500 transition-colors" placeholder="BAND NAME" />
-          <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500 transition-colors" placeholder="SONG TITLE" />
-          
+          <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" placeholder="BAND NAME" />
+          <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" placeholder="SONG TITLE" />
           <label className={`w-full h-12 md:h-14 rounded-xl flex items-center justify-center cursor-pointer text-[10px] font-black shadow-xl transition-all ${audioUrl ? 'bg-zinc-800 text-zinc-400 border border-zinc-700' : 'bg-zinc-100 text-black'}`}>
             {audioUrl ? "MUSIC LOADED" : "LOAD MUSIC"}
-            {/* Enhanced for iPhone MP3 selection */}
-            <input 
-              type="file" 
-              accept="audio/mpeg, audio/mp3, audio/*" 
-              className="hidden" 
-              onChange={(e) => { 
-                const f = e.target.files?.[0]; 
-                if (f) setAudioUrl(URL.createObjectURL(f)); 
-              }} 
-            />
+            <input type="file" accept="audio/mpeg, audio/mp3, audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
           </label>
         </div>
       </div>
