@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.2.9)
- * Fix: Tone arm base size down, Label subText positioning
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.0)
+ * Fix: Adjust subText size to 78% (approx 2.2px) for refined look
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -104,7 +104,6 @@ export default function App() {
                   </div>
                 </div>
               )}
-              {/* ... 他のデザイン要素 (Red-Chkr, Vee-Jay, Rsg-Sun) は変更なし ... */}
               {selectedLabel === "Red-Chkr" && (
                 <div className="absolute top-0 w-full h-full pointer-events-none">
                   <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
@@ -137,8 +136,7 @@ export default function App() {
               )}
             </div>
 
-            {/* Label Text Layer: Flexible layout to push subText down */}
-            <div className="z-10 flex flex-col items-center justify-between w-full h-full pt-[52%] pb-[12%] px-1">
+            <div className="z-10 flex flex-col items-center justify-between w-full h-full pt-[52%] pb-[14%] px-1">
               <div className="flex flex-col items-center w-full">
                 <div className="font-black tracking-tight leading-none whitespace-nowrap overflow-hidden w-[90%] text-center" 
                   style={{ 
@@ -151,8 +149,8 @@ export default function App() {
                   {bandName}
                 </div>
               </div>
-              {/* This will stay at the bottom of the flex container */}
-              <div className="text-[2.8px] md:text-[3.2px] font-black tracking-[0.2em] uppercase text-center opacity-70" style={{ color: labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.8)" : "rgba(63,43,29,0.8)" }}>
+              {/* Reduced size: text-[2.2px] (approx 78% of 2.8px) */}
+              <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.2em] uppercase text-center opacity-75" style={{ color: labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.8)" : "rgba(63,43,29,0.8)" }}>
                 {labelStyles[selectedLabel].subText}
               </div>
             </div>
@@ -161,14 +159,12 @@ export default function App() {
           </div>
         </div>
 
-        {/* Tone Arm Base: Smaller on Mobile */}
         <div className="absolute w-10 h-10 md:w-16 md:h-16 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }}>
           <div className="w-full h-full flex items-center justify-center">
              <div className="w-[60%] h-[60%] rounded-full bg-zinc-900 shadow-inner" />
           </div>
         </div>
 
-        {/* Tone Arm Handle: Positioned relative to base */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
             top: "10.5%", 
