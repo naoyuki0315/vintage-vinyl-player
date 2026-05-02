@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.2)
- * Fix: Bottom-up layout with 1-line spacing between rows
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.3)
+ * Feature: Default Song "MY BABE" & Default MP3 Auto-load
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -14,10 +14,11 @@ export default function App() {
   const speedRef = useRef(0);
   const rafRef = useRef<number | null>(null);
 
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  // Default title set to "MY BABE" and default URL to the local public file
+  const [audioUrl, setAudioUrl] = useState<string | null>("/my-babe.mp3");
   const [isPlaying, setIsPlaying] = useState(false);
   const [bandName, setBandName] = useState("DROP DOWN MAMA");
-  const [songTitle, setSongTitle] = useState("YOKOHAMA CHICAGO BLUES");
+  const [songTitle, setSongTitle] = useState("MY BABE");
   const [selectedLabel, setSelectedLabel] = useState("2120");
 
   const TARGET_RPM = 12.0; 
@@ -136,9 +137,8 @@ export default function App() {
               )}
             </div>
 
-            {/* Label Text Layer: Bottom-up with 1-line spacing */}
+            {/* Label Text Layer (Fixed spacers for 1st-2nd-3rd lines) */}
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
-              {/* 1st Line: Song Title (70% size, 1 line above bandName) */}
               <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" 
                 style={{ 
                   color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor,
@@ -146,8 +146,6 @@ export default function App() {
                 }}>
                 {selectedLabel === "2120" ? songTitle : `"${songTitle}"`}
               </div>
-              
-              {/* 2nd Line: Band Name (70% size, 1 line above subText) */}
               <div className="font-bold uppercase text-center mb-1.5"
                 style={{ 
                   color: selectedLabel === "2120" ? VINTAGE_GOLD : (labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.9)" : "rgba(63,43,29,0.9)"),
@@ -155,8 +153,6 @@ export default function App() {
                 }}>
                 {bandName}
               </div>
-
-              {/* 3rd Line: subText (Base size, anchored at bottom) */}
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" 
                 style={{ color: labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.85)" : "rgba(63,43,29,0.85)" }}>
                 {labelStyles[selectedLabel].subText}
@@ -174,14 +170,7 @@ export default function App() {
         </div>
 
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
-          style={{ 
-            top: "10.5%", 
-            right: "10.5%", 
-            width: "75%", 
-            height: "8px", 
-            transformOrigin: "center right", 
-            transform: `rotate(${isPlaying ? -77 : -90}deg)` 
-          }}>
+          style={{ top: "10.5%", right: "10.5%", width: "75%", height: "8px", transformOrigin: "center right", transform: `rotate(${isPlaying ? -77 : -90}deg)` }}>
           <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full shadow-md" />
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-5 md:w-16 md:h-8 bg-zinc-950 rounded-sm shadow-xl border-r border-zinc-800 flex items-center justify-start pl-2" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }}> 
               <div className="absolute -bottom-1 left-2 w-0.5 h-2 md:w-1 md:h-3 bg-zinc-400 rounded-full opacity-80" /> 
@@ -191,7 +180,7 @@ export default function App() {
 
       <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
         <div className="flex justify-center">
-          <button onClick={togglePlay} disabled={!audioUrl} className={`w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
+          <button onClick={togglePlay} className={`w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
             {isPlaying ? "STOP" : "PLAY"}
           </button>
         </div>
@@ -206,8 +195,8 @@ export default function App() {
         <div className="space-y-2 pt-2 border-t border-white/5">
           <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" placeholder="BAND NAME" />
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" placeholder="SONG TITLE" />
-          <label className={`w-full h-12 md:h-14 rounded-xl flex items-center justify-center cursor-pointer text-[10px] font-black shadow-xl transition-all ${audioUrl ? 'bg-zinc-800 text-zinc-400 border border-zinc-700' : 'bg-zinc-100 text-black'}`}>
-            {audioUrl ? "MUSIC LOADED" : "LOAD MUSIC"}
+          <label className={`w-full h-12 md:h-14 rounded-xl flex items-center justify-center cursor-pointer text-[10px] font-black shadow-xl transition-all ${audioUrl === "/my-babe.mp3" ? 'bg-zinc-100 text-black' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'}`}>
+            {audioUrl === "/my-babe.mp3" ? "LOAD NEW MUSIC" : "CUSTOM MUSIC LOADED"}
             <input type="file" accept="audio/mpeg, audio/mp3, audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
           </label>
         </div>
