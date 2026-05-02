@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.1)
- * Fix: Tighten line-height, Scale 1st/2nd lines to 70%, Keep 3rd line as is
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.2)
+ * Fix: Bottom-up layout with 1-line spacing between rows
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -136,25 +136,27 @@ export default function App() {
               )}
             </div>
 
-            {/* Label Text: 70% scale for 1st & 2nd line + Tight line-height */}
-            <div className="z-10 flex flex-col items-center justify-between w-full h-full pt-[54%] pb-[14%] px-1">
-              <div className="flex flex-col items-center w-full leading-none">
-                <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center" 
-                  style={{ 
-                    color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor,
-                    fontSize: songTitle.length > 20 ? '5px' : '6px'  /* 1st line: 70% of 8.5px */
-                  }}>
-                  {selectedLabel === "2120" ? songTitle : `"${songTitle}"`}
-                </div>
-                <div className="font-bold uppercase text-center -mt-0.5" /* Tighten gap */
-                  style={{ 
-                    color: selectedLabel === "2120" ? VINTAGE_GOLD : (labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.9)" : "rgba(63,43,29,0.9)"),
-                    fontSize: '5.2px' /* 2nd line: 70% of 7.5px */
-                  }}>
-                  {bandName}
-                </div>
+            {/* Label Text Layer: Bottom-up with 1-line spacing */}
+            <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
+              {/* 1st Line: Song Title (70% size, 1 line above bandName) */}
+              <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" 
+                style={{ 
+                  color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor,
+                  fontSize: songTitle.length > 20 ? '5px' : '6px' 
+                }}>
+                {selectedLabel === "2120" ? songTitle : `"${songTitle}"`}
               </div>
-              {/* 3rd line: Keep size, but slightly higher opacity for clarity at small scale */}
+              
+              {/* 2nd Line: Band Name (70% size, 1 line above subText) */}
+              <div className="font-bold uppercase text-center mb-1.5"
+                style={{ 
+                  color: selectedLabel === "2120" ? VINTAGE_GOLD : (labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.9)" : "rgba(63,43,29,0.9)"),
+                  fontSize: '5.2px'
+                }}>
+                {bandName}
+              </div>
+
+              {/* 3rd Line: subText (Base size, anchored at bottom) */}
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" 
                 style={{ color: labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.85)" : "rgba(63,43,29,0.85)" }}>
                 {labelStyles[selectedLabel].subText}
