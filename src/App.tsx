@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.2.7)
- * Fix: Responsive Design for iPhone/Mobile
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.2.8)
+ * Fix: Label centering, Mobile MP3 support, and Responsive layout
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -77,31 +77,33 @@ export default function App() {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
-      {/* Vinyl Player Container: Mobile optimized */}
+      
+      {/* Vinyl Player Body */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_30px_60px_rgba(0,0,0,0.9)] mt-4 mb-8 border border-white/5 overflow-visible">
         
-        {/* Disc */}
+        {/* Record Disc */}
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_50px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.8) 38.2%, transparent 39%), repeating-radial-gradient(circle at center, #080808 0px, #080808 1px, #141414 1.5px, #080808 2px), radial-gradient(circle at center, #1c1c1c 0%, #000 100%)` }}>
           <div className="absolute inset-0 rounded-full opacity-[0.08] pointer-events-none z-10" style={{ background: "conic-gradient(from 25deg, transparent, #fff 50deg, transparent 120deg, #fff 210deg, transparent)" }} />
           
+          {/* Label Container */}
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_15px_rgba(0,0,0,0.6)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
             
-            {/* Label Contents (Scale for smaller labels) */}
-            <div className="absolute inset-0 scale-[0.85] md:scale-100 origin-center">
+            {/* Design Elements (Parody Logos) */}
+            <div className="absolute inset-0 pointer-events-none">
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
-                  <div className="absolute top-0 w-full h-[52%] flex flex-col items-center justify-end pb-3 z-10 text-white">
-                      <span className="text-[12px] mb-1">♛</span>
+                  <div className="absolute top-0 w-full h-[52%] flex flex-col items-center justify-end pb-[10%] z-10 text-white">
+                      <span className="text-[10px] md:text-[12px] mb-1">♛</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-[16px]">†</span>
+                        <span className="text-[14px] md:text-[16px]">†</span>
                         <div className="flex flex-col items-center">
-                          <div className="text-[18px] font-black tracking-tighter leading-none">2120</div>
-                          <div className="text-[3.5px] font-bold tracking-[0.15em] mt-0.5 uppercase opacity-90">RECORD CORP.</div>
+                          <div className="text-[16px] md:text-[18px] font-black tracking-tighter leading-none">2120</div>
+                          <div className="text-[3px] md:text-[3.5px] font-bold tracking-[0.15em] mt-0.5 uppercase opacity-90">RECORD CORP.</div>
                         </div>
-                        <span className="text-[16px]">♘</span>
+                        <span className="text-[14px] md:text-[16px]">♘</span>
                       </div>
                   </div>
                 </div>
@@ -110,21 +112,21 @@ export default function App() {
               {selectedLabel === "Red-Chkr" && (
                 <div className="absolute top-0 w-full h-full pointer-events-none">
                   <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
-                    style={{ backgroundImage: `linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)`, backgroundSize: '12px 12px', borderRadius: '50% 50% 0 0' }} 
+                    style={{ backgroundImage: `linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)`, backgroundSize: '10px 10px', borderRadius: '50% 50% 0 0' }} 
                   />
-                  <div className="absolute top-4 w-full text-center text-white font-serif italic font-black text-[15px] tracking-tighter scale-y-125">Red Checker</div>
-                  <div className="absolute w-full text-center text-white text-[3px] font-bold tracking-[0.25em]" style={{ top: "42px" }}>RECORDING CO.</div>
+                  <div className="absolute top-[12%] w-full text-center text-white font-serif italic font-black text-[13px] md:text-[15px] tracking-tighter scale-y-125">Red Checker</div>
+                  <div className="absolute w-full text-center text-white text-[2.5px] md:text-[3px] font-bold tracking-[0.25em]" style={{ top: "40%" }}>RECORDING CO.</div>
                 </div>
               )}
 
               {selectedLabel === "Vee-Jay" && (
-                <div className="absolute top-0 w-full h-full pointer-events-none flex flex-col items-center justify-center">
-                  <div className="absolute inset-[4%] rounded-full border border-white/30" />
-                  <div className="absolute top-2 flex flex-col items-center">
-                    <div className="w-10 h-8 border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-1 overflow-hidden relative">
-                      <span className="text-white text-[15px] font-black italic tracking-tighter z-10 leading-none">DDM</span>
+                <div className="absolute top-0 w-full h-full pointer-events-none flex flex-col items-center">
+                  <div className="absolute inset-[5%] rounded-full border border-white/30" />
+                  <div className="absolute top-[8%] flex flex-col items-center">
+                    <div className="w-8 h-7 md:w-10 md:h-8 border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden">
+                      <span className="text-white text-[13px] md:text-[15px] font-black italic tracking-tighter leading-none">DDM</span>
                     </div>
-                    <div className="text-[8px] font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
+                    <div className="text-[6px] md:text-[8px] font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
                   </div>
                 </div>
               )}
@@ -132,28 +134,28 @@ export default function App() {
               {selectedLabel === "Rsg-Sun" && (
                 <div className="absolute top-0 w-full h-full pointer-events-none flex flex-col items-center">
                   <div className="absolute top-0 w-full h-full opacity-[0.18]" style={{ background: "repeating-conic-gradient(from 270deg, #3f2b1d 0deg 7.5deg, transparent 7.5deg 20deg)", maskImage: "linear-gradient(to bottom, black 50%, transparent 55%)" }} />
-                  <div className="absolute top-1.5 w-[84%] h-[40%] rounded-t-full border-[1px] border-[#3f2b1d]/60 flex flex-col items-center overflow-hidden pt-1.5 text-[#3f2b1d]">
-                      <div className="text-[5px] font-bold tracking-[0.3em] leading-none">RISING</div>
-                      <div className="text-[22px] font-black italic tracking-tighter leading-[0.8] mt-1">SUN</div>
+                  <div className="absolute top-[5%] w-[84%] h-[38%] rounded-t-full border-[1px] border-[#3f2b1d]/60 flex flex-col items-center overflow-hidden pt-1 text-[#3f2b1d]">
+                      <div className="text-[4px] md:text-[5px] font-bold tracking-[0.3em] leading-none">RISING</div>
+                      <div className="text-[18px] md:text-[22px] font-black italic tracking-tighter leading-[0.8] mt-0.5">SUN</div>
                   </div>
-                  <div className="absolute top-[42%] text-[4px] font-black tracking-[0.2em] text-[#3f2b1d]">RECORDING COMPANY</div>
+                  <div className="absolute top-[42%] text-[3.5px] md:text-[4px] font-black tracking-[0.2em] text-[#3f2b1d]">RECORDING COMPANY</div>
                 </div>
               )}
             </div>
 
-            {/* Song Text: Responsive size */}
-            <div className={`z-10 text-center px-1 flex flex-col items-center w-full ${selectedLabel === "2120" ? "mt-[42%]" : "mt-[52%]"}`}>
+            {/* Centered Song & Artist Text */}
+            <div className="z-10 text-center px-1 flex flex-col items-center justify-center w-full h-full pt-[22%]">
               <div className="font-black tracking-tight leading-none whitespace-nowrap overflow-hidden w-[90%]" 
                 style={{ 
                   color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor,
-                  fontSize: songTitle.length > 20 ? '6.5px' : '8.5px' 
+                  fontSize: songTitle.length > 20 ? '6px' : '8px' 
                 }}>
                 {selectedLabel === "2120" ? songTitle : `"${songTitle}"`}
               </div>
-              <div className="text-[7.5px] font-bold mt-1.5 uppercase" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : (labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.9)" : "rgba(63,43,29,0.9)") }}>
+              <div className="text-[7px] md:text-[7.5px] font-bold mt-1 uppercase" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : (labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.9)" : "rgba(63,43,29,0.9)") }}>
                 {bandName}
               </div>
-              <div className="text-[3px] mt-1.5 opacity-60 font-black tracking-widest uppercase" style={{ color: labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.7)" : "rgba(63,43,29,0.7)" }}>
+              <div className="text-[2.5px] md:text-[3px] mt-1 opacity-60 font-black tracking-widest uppercase" style={{ color: labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.7)" : "rgba(63,43,29,0.7)" }}>
                 {labelStyles[selectedLabel].subText}
               </div>
             </div>
@@ -163,7 +165,7 @@ export default function App() {
         </div>
 
         {/* Tone Arm Base */}
-        <div className="absolute w-12 h-12 md:w-16 md:h-16 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "4%", right: "4%" }}>
+        <div className="absolute w-12 h-12 md:w-16 md:h-16 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }}>
           <div className="w-full h-full flex items-center justify-center">
              <div className="w-[60%] h-[60%] rounded-full bg-zinc-900 shadow-inner" />
           </div>
@@ -172,8 +174,8 @@ export default function App() {
         {/* Tone Arm Handle */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
-            top: "8.5%", 
-            right: "8.5%", 
+            top: "10.5%", 
+            right: "10.5%", 
             width: "75%", 
             height: "10px", 
             transformOrigin: "center right", 
@@ -186,17 +188,17 @@ export default function App() {
         </div>
       </div>
 
-      {/* Control Panel: Mobile Layout */}
-      <div className="w-full max-w-sm space-y-5 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
-        <div className="flex justify-center mb-1">
+      {/* Controls Container */}
+      <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
+        <div className="flex justify-center">
           <button onClick={togglePlay} disabled={!audioUrl} className={`w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
             {isPlaying ? "STOP" : "PLAY"}
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 md:gap-3">
+        <div className="grid grid-cols-2 gap-2">
           {Object.keys(labelStyles).map((style) => (
-            <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 md:py-3 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:border-zinc-500'}`}>
+            <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:border-zinc-500'}`}>
               <span className="opacity-50 text-[6px] mb-0.5">Parody of</span>
               {style === "2120" ? "2120" : style === "Red-Chkr" ? "RED CHECKER" : style === "Vee-Jay" ? "DDM" : "RISING SUN"}
             </button>
@@ -209,7 +211,16 @@ export default function App() {
           
           <label className={`w-full h-12 md:h-14 rounded-xl flex items-center justify-center cursor-pointer text-[10px] font-black shadow-xl transition-all ${audioUrl ? 'bg-zinc-800 text-zinc-400 border border-zinc-700' : 'bg-zinc-100 text-black'}`}>
             {audioUrl ? "MUSIC LOADED" : "LOAD MUSIC"}
-            <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
+            {/* Enhanced for iPhone MP3 selection */}
+            <input 
+              type="file" 
+              accept="audio/mpeg, audio/mp3, audio/*" 
+              className="hidden" 
+              onChange={(e) => { 
+                const f = e.target.files?.[0]; 
+                if (f) setAudioUrl(URL.createObjectURL(f)); 
+              }} 
+            />
           </label>
         </div>
       </div>
