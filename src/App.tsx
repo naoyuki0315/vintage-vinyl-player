@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.8)
- * Fix: Red Checker 80%, Criterion 80% & Offset, Device-specific 3D Depth
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.9)
+ * Fix: Balanced 3D depth between PC and Mobile (The "Middle Ground" Update)
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -81,17 +81,17 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
       
-      {/* Vinyl Player Body: PC Shadow adjusted */}
-      <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_30px_60px_rgba(0,0,0,0.9)] md:shadow-[0_40px_80px_rgba(0,0,0,0.8)] mt-4 mb-8 border border-white/5 overflow-visible">
+      {/* Vinyl Player Body: Balanced Shadow between PC and Mobile */}
+      <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_45px_90px_rgba(0,0,0,0.85)] mt-4 mb-8 border border-white/5 overflow-visible">
         
-        {/* Disc: Enhanced Depth for Mobile */}
-        <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_65px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
-          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.9) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, #1a1a1a 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
+        {/* Disc: Balanced Contrast and Shine */}
+        <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
+          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.88) 38.2%, transparent 39.8%), repeating-radial-gradient(circle at center, #050505 0px, #050505 1px, rgba(255,255,255,0.05) 1.5px, #050505 2px), radial-gradient(circle at center, #222 0%, #000 100%)` }}>
           
-          <div className="absolute inset-0 rounded-full opacity-[0.22] pointer-events-none z-10" 
-               style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.4) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.4) 225deg, transparent 270deg)" }} />
+          <div className="absolute inset-0 rounded-full opacity-[0.20] pointer-events-none z-10" 
+               style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.38) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.38) 225deg, transparent 270deg)" }} />
           
-          <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_18px_rgba(0,0,0,0.9)] border-t border-white/10 overflow-hidden"
+          <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_18px_rgba(0,0,0,0.85)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
             
             <div className="absolute inset-0 pointer-events-none">
@@ -112,7 +112,6 @@ export default function App() {
                 </div>
               )}
 
-              {/* Red Checker: 80% Scale */}
               {selectedLabel === "Red-Chkr" && (
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
@@ -123,11 +122,10 @@ export default function App() {
                 </div>
               )}
 
-              {/* Criterion (DDM): 80% Scale & 0.5 char offset */}
               {selectedLabel === "Vee-Jay" && (
                 <div className="absolute top-0 w-full h-full flex flex-col items-center">
                   <div className="absolute inset-[5%] rounded-full border border-white/30" />
-                  <div className="absolute top-[7%] flex flex-col items-center"> {/* Adjusted top offset */}
+                  <div className="absolute top-[7%] flex flex-col items-center">
                     <div className="w-7 h-6 md:w-10 md:h-8 border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden">
                       <span className="text-white text-[11px] md:text-[13px] font-black italic tracking-tighter leading-none">DDM</span>
                     </div>
@@ -151,7 +149,6 @@ export default function App() {
               )}
             </div>
 
-            {/* Label Text Layer (3-line bottom-up stack) */}
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
               <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" 
                 style={{ 
@@ -177,14 +174,12 @@ export default function App() {
           </div>
         </div>
 
-        {/* Tone Arm Base */}
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }}>
           <div className="w-full h-full flex items-center justify-center">
              <div className="w-[60%] h-[60%] rounded-full bg-zinc-900 shadow-inner" />
           </div>
         </div>
 
-        {/* Tone Arm Handle: Range x1.3 */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ top: "10.5%", right: "10.5%", width: "75%", height: "8px", transformOrigin: "center right", transform: `rotate(${isPlaying ? -81 : -90}deg)` }}>
           <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full shadow-md" />
