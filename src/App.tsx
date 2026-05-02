@@ -1,13 +1,12 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.3)
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.4)
+ * Restore: Label selection buttons & logo designs
  * Feature: Stripe Checkout "缶コーヒーをおごる" (100 JPY / One-time)
- * Integration: Updated with User's Stripe Public Key & Price ID
  */
 
 import React, { useEffect, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 
-// 鈴木さんの公開可能キー
 const stripePromise = loadStripe("pk_live_51TOrvdDnNK2gZIdwXeJmjYTBMGrDPDWA2HBkJZPJ1Mfa7cKC0GCUgY07oCYWUYxtZL20xX4MuzKlOjnxizPJDm2x00Q66qiEnh");
 
 export default function App() {
@@ -37,21 +36,15 @@ export default function App() {
     "Rsg-Sun": { color: "#facc15", textColor: "#3f2b1d", subText: "MEMPHIS, TENNESSEE" },
   };
 
-  // 投げ銭処理（Stripe Checkout）
   const handleDonation = async () => {
     const stripe = await stripePromise;
     if (!stripe) return;
-
     const { error } = await stripe.redirectToCheckout({
-      lineItems: [{
-        price: "price_1TSmnDDnNK2gZIdwB9b2ldc0", // ご提示いただいた100円の価格ID
-        quantity: 1,
-      }],
+      lineItems: [{ price: "price_1TSmnDDnNK2gZIdwB9b2ldc0", quantity: 1 }],
       mode: "payment",
       successUrl: window.location.origin,
       cancelUrl: window.location.origin,
     });
-
     if (error) console.error("Stripe Error:", error);
   };
 
@@ -95,7 +88,7 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
       
-      {/* Vinyl Player Body (Optimized PC & Mobile effects) */}
+      {/* Vinyl Player Body */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] md:shadow-[0_45px_100px_rgba(0,0,0,0.4)] mt-4 mb-8 border border-white/5 overflow-visible">
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
@@ -106,7 +99,6 @@ export default function App() {
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
             
             <div className="absolute inset-0 pointer-events-none">
-              {/* 各ロゴの精密なデザイン再現 */}
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
@@ -158,12 +150,13 @@ export default function App() {
               )}
             </div>
 
-            {/* 3-line Bottom-up Label Text */}
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
               <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: '6px' }}>{songTitle}</div>
               <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
             </div>
+
+            <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)] z-20" />
           </div>
         </div>
 
@@ -176,7 +169,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Control Panel with Coffee Button */}
+      {/* Control Panel */}
       <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
         <div className="flex justify-center">
           <button onClick={togglePlay} className={`w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
@@ -184,6 +177,16 @@ export default function App() {
           </button>
         </div>
         
+        {/* RESTORED: Label Selection Buttons */}
+        <div className="grid grid-cols-2 gap-2">
+          {Object.keys(labelStyles).map((style) => (
+            <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:border-zinc-500'}`}>
+              <span className="opacity-50 text-[6px] mb-0.5">Parody of</span>
+              {style === "2120" ? "2120" : style === "Red-Chkr" ? "RED CHECKER" : style === "Vee-Jay" ? "DDM" : "RISING SUN"}
+            </button>
+          ))}
+        </div>
+
         <div className="space-y-2 pt-2 border-t border-white/5">
           <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
@@ -194,7 +197,6 @@ export default function App() {
               <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
             </label>
             
-            {/* 缶コーヒーをおごるボタン */}
             <button onClick={handleDonation} className="flex-1 h-12 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center text-amber-500 transition-all active:scale-95">
               <span className="text-[9px] font-black tracking-widest">TIP 100 JPY</span>
               <span className="text-[7px] opacity-70">缶コーヒーをおごる</span>
