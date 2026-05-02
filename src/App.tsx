@@ -1,6 +1,7 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.6)
- * Restore: PC Shadows, DDM/SUN labels, and focus only on requested arm/audio fixes
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.7)
+ * Restore: RED CHECKER logo design
+ * Improve: Deeper 3D effect for mobile record disc
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -81,17 +82,17 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
       
-      {/* Vinyl Player Body: PC Shadows Restored */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_50px_100px_rgba(0,0,0,0.9)] mt-4 mb-8 border border-white/5 overflow-visible">
         
-        {/* Disc with Stronger Shine */}
-        <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_50px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
-          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.8) 38.2%, transparent 39.5%), repeating-radial-gradient(circle at center, #080808 0px, #080808 1px, #141414 1.5px, #080808 2px), radial-gradient(circle at center, #1c1c1c 0%, #000 100%)` }}>
+        {/* Disc: Enhanced 3D effect and Mobile Reflections */}
+        <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
+          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.85) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #050505 0px, #050505 1px, #1a1a1a 1.5px, #050505 2px), radial-gradient(circle at center, #222 0%, #000 100%)` }}>
           
-          <div className="absolute inset-0 rounded-full opacity-[0.15] pointer-events-none z-10" 
-               style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.4) 40deg, transparent 80deg, transparent 180deg, rgba(255,255,255,0.4) 220deg, transparent 260deg)" }} />
+          <div className="absolute inset-0 rounded-full opacity-[0.18] pointer-events-none z-10" 
+               style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.35) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.35) 225deg, transparent 270deg)" }} />
           
-          <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_15px_rgba(0,0,0,0.6)] border-t border-white/10 overflow-hidden"
+          {/* Label Container with Inner Depth Shadow */}
+          <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_15px_rgba(0,0,0,0.8),_0_0_10px_rgba(0,0,0,0.5)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
             
             <div className="absolute inset-0 pointer-events-none">
@@ -112,6 +113,18 @@ export default function App() {
                 </div>
               )}
 
+              {/* RESTORED: RED CHECKER DESIGN */}
+              {selectedLabel === "Red-Chkr" && (
+                <div className="absolute top-0 w-full h-full">
+                  <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
+                    style={{ backgroundImage: `linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)`, backgroundSize: '12px 12px', borderRadius: '50% 50% 0 0' }} 
+                  />
+                  <div className="absolute top-[12%] w-full text-center text-white font-serif italic font-black text-[14px] md:text-[16px] tracking-tighter scale-y-125">Red Checker</div>
+                  <div className="absolute w-full text-center text-white text-[2.8px] md:text-[3.2px] font-bold tracking-[0.25em]" style={{ top: "42%" }}>RECORDING CO.</div>
+                </div>
+              )}
+
+              {/* RESTORED: DDM DESIGN */}
               {selectedLabel === "Vee-Jay" && (
                 <div className="absolute top-0 w-full h-full flex flex-col items-center">
                   <div className="absolute inset-[5%] rounded-full border border-white/30" />
@@ -124,6 +137,7 @@ export default function App() {
                 </div>
               )}
 
+              {/* RESTORED: SUN DESIGN */}
               {selectedLabel === "Rsg-Sun" && (
                 <div className="absolute top-0 w-full h-full flex flex-col items-center">
                   <div className="absolute top-0 w-full h-full opacity-[0.18]" style={{ background: "repeating-conic-gradient(from 270deg, #3f2b1d 0deg 7.5deg, transparent 7.5deg 20deg)", maskImage: "linear-gradient(to bottom, black 50%, transparent 55%)" }} />
