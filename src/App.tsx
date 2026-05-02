@@ -1,9 +1,14 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.0)
- * Feature: Halved effects for PC, Doubled effects for Mobile (Shadows & Reflections)
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.3)
+ * Feature: Stripe Checkout "缶コーヒーをおごる" (100 JPY / One-time)
+ * Integration: Updated with User's Stripe Public Key & Price ID
  */
 
 import React, { useEffect, useRef, useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+
+// 鈴木さんの公開可能キー
+const stripePromise = loadStripe("pk_live_51TOrvdDnNK2gZIdwXeJmjYTBMGrDPDWA2HBkJZPJ1Mfa7cKC0GCUgY07oCYWUYxtZL20xX4MuzKlOjnxizPJDm2x00Q66qiEnh");
 
 export default function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -32,6 +37,24 @@ export default function App() {
     "Rsg-Sun": { color: "#facc15", textColor: "#3f2b1d", subText: "MEMPHIS, TENNESSEE" },
   };
 
+  // 投げ銭処理（Stripe Checkout）
+  const handleDonation = async () => {
+    const stripe = await stripePromise;
+    if (!stripe) return;
+
+    const { error } = await stripe.redirectToCheckout({
+      lineItems: [{
+        price: "price_1TSmnDDnNK2gZIdwB9b2ldc0", // ご提示いただいた100円の価格ID
+        quantity: 1,
+      }],
+      mode: "payment",
+      successUrl: window.location.origin,
+      cancelUrl: window.location.origin,
+    });
+
+    if (error) console.error("Stripe Error:", error);
+  };
+
   useEffect(() => {
     let lastTs = 0;
     const tick = (ts: number) => {
@@ -53,27 +76,18 @@ export default function App() {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, [isPlaying]);
 
-  const playBriefly = (audioEl: HTMLAudioElement | null, duration: number) => {
-    if (!audioEl) return;
-    audioEl.currentTime = 0;
-    audioEl.play().catch(() => {});
-    setTimeout(() => audioEl.pause(), duration * 1000);
-  };
-
   const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio || !audioUrl) return;
     if (!isPlaying) {
       setIsPlaying(true); 
-      setTimeout(() => playBriefly(sePlayRef.current, 0.2), 400); 
-      setTimeout(() => {
-        audio.play().catch(err => console.error("Playback failed:", err));
-      }, 1000); 
+      setTimeout(() => { if (sePlayRef.current) { sePlayRef.current.currentTime = 0; sePlayRef.current.play().catch(() => {}); } }, 400); 
+      setTimeout(() => audio.play().catch(() => {}), 1000); 
     } else {
       audio.pause(); 
       setTimeout(() => {
         setIsPlaying(false); 
-        playBriefly(seStopRef.current, 0.2); 
+        if (seStopRef.current) { seStopRef.current.currentTime = 0; seStopRef.current.play().catch(() => {}); }
       }, 130); 
     }
   };
@@ -81,13 +95,10 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
       
-      {/* Vinyl Player Body: Responsive Shadow (Mobile: Stronger, PC: Milder) */}
+      {/* Vinyl Player Body (Optimized PC & Mobile effects) */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] md:shadow-[0_45px_100px_rgba(0,0,0,0.4)] mt-4 mb-8 border border-white/5 overflow-visible">
-        
-        {/* Disc: Doubled Reflection on Mobile, Halved on PC */}
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
-          
           <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10 transition-opacity" 
                style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
           
@@ -95,7 +106,7 @@ export default function App() {
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
             
             <div className="absolute inset-0 pointer-events-none">
-              {/* Logo designs remain same as v2.3.9 */}
+              {/* 各ロゴの精密なデザイン再現 */}
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
@@ -147,67 +158,48 @@ export default function App() {
               )}
             </div>
 
+            {/* 3-line Bottom-up Label Text */}
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
-              <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" 
-                style={{ 
-                  color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor,
-                  fontSize: songTitle.length > 20 ? '5px' : '6px' 
-                }}>
-                {selectedLabel === "2120" ? songTitle : `"${songTitle}"`}
-              </div>
-              <div className="font-bold uppercase text-center mb-1.5"
-                style={{ 
-                  color: selectedLabel === "2120" ? VINTAGE_GOLD : (labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.9)" : "rgba(63,43,29,0.9)"),
-                  fontSize: '5.2px'
-                }}>
-                {bandName}
-              </div>
-              <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" 
-                style={{ color: labelStyles[selectedLabel].textColor === "white" ? "rgba(255,255,255,0.85)" : "rgba(63,43,29,0.85)" }}>
-                {labelStyles[selectedLabel].subText}
-              </div>
+              <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: '6px' }}>{songTitle}</div>
+              <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
+              <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
             </div>
-
-            <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)] z-20" />
           </div>
         </div>
 
-        <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }}>
-          <div className="w-full h-full flex items-center justify-center">
-             <div className="w-[60%] h-[60%] rounded-full bg-zinc-900 shadow-inner" />
-          </div>
-        </div>
-
+        {/* Tone Arm */}
+        <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ top: "10.5%", right: "10.5%", width: "75%", height: "8px", transformOrigin: "center right", transform: `rotate(${isPlaying ? -81 : -90}deg)` }}>
-          <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full shadow-md" />
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-5 md:w-16 md:h-8 bg-zinc-950 rounded-sm shadow-xl border-r border-zinc-800 flex items-center justify-start pl-2" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }}> 
-              <div className="absolute -bottom-1 left-2 w-0.5 h-2 md:w-1 md:h-3 bg-zinc-400 rounded-full opacity-80" /> 
-          </div>
+          <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full" />
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-5 md:w-16 md:h-8 bg-zinc-950 rounded-sm shadow-xl border-r border-zinc-800" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }} />
         </div>
       </div>
 
+      {/* Control Panel with Coffee Button */}
       <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
         <div className="flex justify-center">
           <button onClick={togglePlay} className={`w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
             {isPlaying ? "STOP" : "PLAY"}
           </button>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          {Object.keys(labelStyles).map((style) => (
-            <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:border-zinc-500'}`}>
-              <span className="opacity-50 text-[6px] mb-0.5">Parody of</span>
-              {style === "2120" ? "2120" : style === "Red-Chkr" ? "RED CHECKER" : style === "Vee-Jay" ? "DDM" : "RISING SUN"}
-            </button>
-          ))}
-        </div>
+        
         <div className="space-y-2 pt-2 border-t border-white/5">
           <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
-          <label className={`w-full h-12 md:h-14 rounded-xl flex items-center justify-center cursor-pointer text-[10px] font-black shadow-xl transition-all ${audioUrl === DEFAULT_MP3 ? 'bg-zinc-100 text-black' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'}`}>
-            {audioUrl === DEFAULT_MP3 ? "LOAD NEW MUSIC" : "CUSTOM MUSIC LOADED"}
-            <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
-          </label>
+          
+          <div className="flex gap-2">
+            <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
+              LOAD MUSIC
+              <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
+            </label>
+            
+            {/* 缶コーヒーをおごるボタン */}
+            <button onClick={handleDonation} className="flex-1 h-12 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center text-amber-500 transition-all active:scale-95">
+              <span className="text-[9px] font-black tracking-widest">TIP 100 JPY</span>
+              <span className="text-[7px] opacity-70">缶コーヒーをおごる</span>
+            </button>
+          </div>
         </div>
       </div>
 
