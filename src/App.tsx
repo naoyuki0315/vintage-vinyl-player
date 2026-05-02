@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.9)
- * Fix: Balanced 3D depth between PC and Mobile (The "Middle Ground" Update)
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.0)
+ * Feature: Halved effects for PC, Doubled effects for Mobile (Shadows & Reflections)
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -81,20 +81,21 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
       
-      {/* Vinyl Player Body: Balanced Shadow between PC and Mobile */}
-      <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_45px_90px_rgba(0,0,0,0.85)] mt-4 mb-8 border border-white/5 overflow-visible">
+      {/* Vinyl Player Body: Responsive Shadow (Mobile: Stronger, PC: Milder) */}
+      <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] md:shadow-[0_45px_100px_rgba(0,0,0,0.4)] mt-4 mb-8 border border-white/5 overflow-visible">
         
-        {/* Disc: Balanced Contrast and Shine */}
+        {/* Disc: Doubled Reflection on Mobile, Halved on PC */}
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
-          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.88) 38.2%, transparent 39.8%), repeating-radial-gradient(circle at center, #050505 0px, #050505 1px, rgba(255,255,255,0.05) 1.5px, #050505 2px), radial-gradient(circle at center, #222 0%, #000 100%)` }}>
+          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
-          <div className="absolute inset-0 rounded-full opacity-[0.20] pointer-events-none z-10" 
-               style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.38) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.38) 225deg, transparent 270deg)" }} />
+          <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10 transition-opacity" 
+               style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
           
-          <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_18px_rgba(0,0,0,0.85)] border-t border-white/10 overflow-hidden"
+          <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] md:shadow-[inset_0_0_12px_rgba(0,0,0,0.75)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
             
             <div className="absolute inset-0 pointer-events-none">
+              {/* Logo designs remain same as v2.3.9 */}
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
@@ -111,7 +112,6 @@ export default function App() {
                   </div>
                 </div>
               )}
-
               {selectedLabel === "Red-Chkr" && (
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
@@ -121,7 +121,6 @@ export default function App() {
                   <div className="absolute w-full text-center text-white text-[2.5px] md:text-[2.8px] font-bold tracking-[0.25em]" style={{ top: "42%" }}>RECORDING CO.</div>
                 </div>
               )}
-
               {selectedLabel === "Vee-Jay" && (
                 <div className="absolute top-0 w-full h-full flex flex-col items-center">
                   <div className="absolute inset-[5%] rounded-full border border-white/30" />
@@ -133,7 +132,6 @@ export default function App() {
                   </div>
                 </div>
               )}
-
               {selectedLabel === "Rsg-Sun" && (
                 <div className="absolute top-0 w-full h-full flex flex-col items-center">
                   <div className="absolute top-0 w-full h-full opacity-[0.18]" style={{ background: "repeating-conic-gradient(from 270deg, #3f2b1d 0deg 7.5deg, transparent 7.5deg 20deg)", maskImage: "linear-gradient(to bottom, black 50%, transparent 55%)" }} />
