@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.5)
- * Fix: Corrected filename to my_babe.mp3, Enhanced mobile reflection, Increased arm range x1.3
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.6)
+ * Restore: PC Shadows, DDM/SUN labels, and focus only on requested arm/audio fixes
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -14,7 +14,6 @@ export default function App() {
   const speedRef = useRef(0);
   const rafRef = useRef<number | null>(null);
 
-  // File name fixed based on your screenshot: my_babe.mp3
   const DEFAULT_MP3 = "/my_babe.mp3";
   const [audioUrl, setAudioUrl] = useState<string | null>(DEFAULT_MP3);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -82,14 +81,14 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
       
-      <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_30px_60px_rgba(0,0,0,0.9)] mt-4 mb-8 border border-white/5 overflow-visible">
+      {/* Vinyl Player Body: PC Shadows Restored */}
+      <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_50px_100px_rgba(0,0,0,0.9)] mt-4 mb-8 border border-white/5 overflow-visible">
         
-        {/* Disc with Enhanced Reflection for Mobile */}
+        {/* Disc with Stronger Shine */}
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_50px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.8) 38.2%, transparent 39.5%), repeating-radial-gradient(circle at center, #080808 0px, #080808 1px, #141414 1.5px, #080808 2px), radial-gradient(circle at center, #1c1c1c 0%, #000 100%)` }}>
           
-          {/* Moving Shine/Reflection: Makes rotation visible on mobile */}
-          <div className="absolute inset-0 rounded-full opacity-[0.15] md:opacity-[0.12] pointer-events-none z-10" 
+          <div className="absolute inset-0 rounded-full opacity-[0.15] pointer-events-none z-10" 
                style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.4) 40deg, transparent 80deg, transparent 180deg, rgba(255,255,255,0.4) 220deg, transparent 260deg)" }} />
           
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_15px_rgba(0,0,0,0.6)] border-t border-white/10 overflow-hidden"
@@ -112,17 +111,35 @@ export default function App() {
                   </div>
                 </div>
               )}
-              {selectedLabel === "Red-Chkr" && (
-                <div className="absolute top-0 w-full h-full pointer-events-none">
-                  <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
-                    style={{ backgroundImage: `linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)`, backgroundSize: '10px 10px', borderRadius: '50% 50% 0 0' }} 
-                  />
-                  <div className="absolute top-[12%] w-full text-center text-white font-serif italic font-black text-[13px] md:text-[15px] tracking-tighter scale-y-125">Red Checker</div>
-                  <div className="absolute w-full text-center text-white text-[2.5px] md:text-[3px] font-bold tracking-[0.25em]" style={{ top: "40%" }}>RECORDING CO.</div>
+
+              {selectedLabel === "Vee-Jay" && (
+                <div className="absolute top-0 w-full h-full flex flex-col items-center">
+                  <div className="absolute inset-[5%] rounded-full border border-white/30" />
+                  <div className="absolute top-[8%] flex flex-col items-center">
+                    <div className="w-8 h-7 md:w-10 md:h-8 border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden">
+                      <span className="text-white text-[13px] md:text-[15px] font-black italic tracking-tighter leading-none">DDM</span>
+                    </div>
+                    <div className="text-[6px] md:text-[8px] font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
+                  </div>
+                </div>
+              )}
+
+              {selectedLabel === "Rsg-Sun" && (
+                <div className="absolute top-0 w-full h-full flex flex-col items-center">
+                  <div className="absolute top-0 w-full h-full opacity-[0.18]" style={{ background: "repeating-conic-gradient(from 270deg, #3f2b1d 0deg 7.5deg, transparent 7.5deg 20deg)", maskImage: "linear-gradient(to bottom, black 50%, transparent 55%)" }} />
+                  <div className="absolute top-[5%] w-[84%] h-[38%] rounded-t-full border-[1px] border-[#3f2b1d]/60 flex flex-col items-center pt-1 text-[#3f2b1d]">
+                      <div className="text-[4px] md:text-[5px] font-bold tracking-[0.3em] leading-none">RISING</div>
+                      <div className="text-[18px] md:text-[22px] font-black italic tracking-tighter leading-[0.8] mt-0.5">SUN</div>
+                      <svg viewBox="0 0 100 100" className="w-4 h-4 mt-0.5 opacity-80" fill="currentColor">
+                        <path d="M50 15c-3 0-6 2-7 5-2 0-4 1-5 3-2 0-3 2-3 4s1 4 3 4c1 4 5 7 9 7h6c4 0 8-3 9-7 2 0 3-2 3-4s-1-4-3-4c-1-2-3-3-5-3-1-3-4-5-7-5zM45 40l-5 15h20l-5-15h-10z" />
+                      </svg>
+                  </div>
+                  <div className="absolute top-[42%] text-[3.5px] md:text-[4px] font-black tracking-[0.2em] text-[#3f2b1d]">RECORDING COMPANY</div>
                 </div>
               )}
             </div>
 
+            {/* Label Text Layer (3-line bottom-up stack) */}
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
               <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" 
                 style={{ 
@@ -155,16 +172,9 @@ export default function App() {
           </div>
         </div>
 
-        {/* Tone Arm Handle: Range increased x1.3 (Approx -81deg from -90deg base) */}
+        {/* Tone Arm Handle: Range x1.3 */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
-          style={{ 
-            top: "10.5%", 
-            right: "10.5%", 
-            width: "75%", 
-            height: "8px", 
-            transformOrigin: "center right", 
-            transform: `rotate(${isPlaying ? -81 : -90}deg)` 
-          }}>
+          style={{ top: "10.5%", right: "10.5%", width: "75%", height: "8px", transformOrigin: "center right", transform: `rotate(${isPlaying ? -81 : -90}deg)` }}>
           <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full shadow-md" />
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-5 md:w-16 md:h-8 bg-zinc-950 rounded-sm shadow-xl border-r border-zinc-800 flex items-center justify-start pl-2" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }}> 
               <div className="absolute -bottom-1 left-2 w-0.5 h-2 md:w-1 md:h-3 bg-zinc-400 rounded-full opacity-80" /> 
@@ -187,8 +197,8 @@ export default function App() {
           ))}
         </div>
         <div className="space-y-2 pt-2 border-t border-white/5">
-          <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none" />
-          <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none" />
+          <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
+          <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <label className={`w-full h-12 md:h-14 rounded-xl flex items-center justify-center cursor-pointer text-[10px] font-black shadow-xl transition-all ${audioUrl === DEFAULT_MP3 ? 'bg-zinc-100 text-black' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'}`}>
             {audioUrl === DEFAULT_MP3 ? "LOAD NEW MUSIC" : "CUSTOM MUSIC LOADED"}
             <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
