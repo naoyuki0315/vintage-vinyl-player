@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.4)
- * Fix: Tone arm base 70% size on PC, Half arm rotation range, Reliable default audio
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.5)
+ * Fix: Corrected filename to my_babe.mp3, Enhanced mobile reflection, Increased arm range x1.3
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -14,8 +14,8 @@ export default function App() {
   const speedRef = useRef(0);
   const rafRef = useRef<number | null>(null);
 
-  // Default path for public folder
-  const DEFAULT_MP3 = "/my-babe.mp3";
+  // File name fixed based on your screenshot: my_babe.mp3
+  const DEFAULT_MP3 = "/my_babe.mp3";
   const [audioUrl, setAudioUrl] = useState<string | null>(DEFAULT_MP3);
   const [isPlaying, setIsPlaying] = useState(false);
   const [bandName, setBandName] = useState("DROP DOWN MAMA");
@@ -84,13 +84,17 @@ export default function App() {
       
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_30px_60px_rgba(0,0,0,0.9)] mt-4 mb-8 border border-white/5 overflow-visible">
         
+        {/* Disc with Enhanced Reflection for Mobile */}
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_50px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
-          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.8) 38.2%, transparent 39%), repeating-radial-gradient(circle at center, #080808 0px, #080808 1px, #141414 1.5px, #080808 2px), radial-gradient(circle at center, #1c1c1c 0%, #000 100%)` }}>
+          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.8) 38.2%, transparent 39.5%), repeating-radial-gradient(circle at center, #080808 0px, #080808 1px, #141414 1.5px, #080808 2px), radial-gradient(circle at center, #1c1c1c 0%, #000 100%)` }}>
+          
+          {/* Moving Shine/Reflection: Makes rotation visible on mobile */}
+          <div className="absolute inset-0 rounded-full opacity-[0.15] md:opacity-[0.12] pointer-events-none z-10" 
+               style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.4) 40deg, transparent 80deg, transparent 180deg, rgba(255,255,255,0.4) 220deg, transparent 260deg)" }} />
           
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_15px_rgba(0,0,0,0.6)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
             
-            {/* Label Background Designs */}
             <div className="absolute inset-0 pointer-events-none">
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
@@ -108,7 +112,6 @@ export default function App() {
                   </div>
                 </div>
               )}
-              {/* Other Parody Logos... */}
               {selectedLabel === "Red-Chkr" && (
                 <div className="absolute top-0 w-full h-full pointer-events-none">
                   <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
@@ -120,7 +123,6 @@ export default function App() {
               )}
             </div>
 
-            {/* Label Text Layer (3-line bottom-up stack) */}
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
               <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" 
                 style={{ 
@@ -146,14 +148,14 @@ export default function App() {
           </div>
         </div>
 
-        {/* Tone Arm Base (Resized to 70% on PC: md:w-11) */}
+        {/* Tone Arm Base */}
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }}>
           <div className="w-full h-full flex items-center justify-center">
              <div className="w-[60%] h-[60%] rounded-full bg-zinc-900 shadow-inner" />
           </div>
         </div>
 
-        {/* Tone Arm Handle (Rotation range halved: isPlaying ? -83 : -90) */}
+        {/* Tone Arm Handle: Range increased x1.3 (Approx -81deg from -90deg base) */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
             top: "10.5%", 
@@ -161,7 +163,7 @@ export default function App() {
             width: "75%", 
             height: "8px", 
             transformOrigin: "center right", 
-            transform: `rotate(${isPlaying ? -83 : -90}deg)` 
+            transform: `rotate(${isPlaying ? -81 : -90}deg)` 
           }}>
           <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full shadow-md" />
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-5 md:w-16 md:h-8 bg-zinc-950 rounded-sm shadow-xl border-r border-zinc-800 flex items-center justify-start pl-2" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }}> 
@@ -194,7 +196,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Actual audio element with primary source */}
       <audio ref={audioRef} key={audioUrl} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
       <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" />
       <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" />
