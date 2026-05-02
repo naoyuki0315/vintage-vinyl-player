@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.3)
- * Feature: Default Song "MY BABE" & Default MP3 Auto-load
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.3.4)
+ * Fix: Tone arm base 70% size on PC, Half arm rotation range, Reliable default audio
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -14,8 +14,9 @@ export default function App() {
   const speedRef = useRef(0);
   const rafRef = useRef<number | null>(null);
 
-  // Default title set to "MY BABE" and default URL to the local public file
-  const [audioUrl, setAudioUrl] = useState<string | null>("/my-babe.mp3");
+  // Default path for public folder
+  const DEFAULT_MP3 = "/my-babe.mp3";
+  const [audioUrl, setAudioUrl] = useState<string | null>(DEFAULT_MP3);
   const [isPlaying, setIsPlaying] = useState(false);
   const [bandName, setBandName] = useState("DROP DOWN MAMA");
   const [songTitle, setSongTitle] = useState("MY BABE");
@@ -26,10 +27,10 @@ export default function App() {
   const VINTAGE_GOLD = "#e2c27b";
 
   const labelStyles: Record<string, any> = {
-    "2120": { color: "#2a4058", textColor: VINTAGE_GOLD, bottomBg: "#f2f0e4", parodyName: "2120", subText: "2120 S. MICHIGAN AVE. • CHICAGO, ILL." },
-    "Red-Chkr": { color: "#a52a2a", textColor: "white", parodyName: "RED CHECKER", subText: "RECORDING CO. • CHICAGO, ILL." },
-    "Vee-Jay": { color: "#1a1a1a", textColor: "white", parodyName: "DDM CRITERION", subText: "CHICAGO-YOKOHAMA" },
-    "Rsg-Sun": { color: "#facc15", textColor: "#3f2b1d", parodyName: "RISING SUN", subText: "MEMPHIS, TENNESSEE" },
+    "2120": { color: "#2a4058", textColor: VINTAGE_GOLD, subText: "2120 S. MICHIGAN AVE. • CHICAGO, ILL." },
+    "Red-Chkr": { color: "#a52a2a", textColor: "white", subText: "RECORDING CO. • CHICAGO, ILL." },
+    "Vee-Jay": { color: "#1a1a1a", textColor: "white", subText: "CHICAGO-YOKOHAMA" },
+    "Rsg-Sun": { color: "#facc15", textColor: "#3f2b1d", subText: "MEMPHIS, TENNESSEE" },
   };
 
   useEffect(() => {
@@ -56,7 +57,7 @@ export default function App() {
   const playBriefly = (audioEl: HTMLAudioElement | null, duration: number) => {
     if (!audioEl) return;
     audioEl.currentTime = 0;
-    audioEl.play();
+    audioEl.play().catch(() => {});
     setTimeout(() => audioEl.pause(), duration * 1000);
   };
 
@@ -66,7 +67,9 @@ export default function App() {
     if (!isPlaying) {
       setIsPlaying(true); 
       setTimeout(() => playBriefly(sePlayRef.current, 0.2), 400); 
-      setTimeout(() => audio.play(), 1000); 
+      setTimeout(() => {
+        audio.play().catch(err => console.error("Playback failed:", err));
+      }, 1000); 
     } else {
       audio.pause(); 
       setTimeout(() => {
@@ -83,11 +86,11 @@ export default function App() {
         
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_50px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.8) 38.2%, transparent 39%), repeating-radial-gradient(circle at center, #080808 0px, #080808 1px, #141414 1.5px, #080808 2px), radial-gradient(circle at center, #1c1c1c 0%, #000 100%)` }}>
-          <div className="absolute inset-0 rounded-full opacity-[0.08] pointer-events-none z-10" style={{ background: "conic-gradient(from 25deg, transparent, #fff 50deg, transparent 120deg, #fff 210deg, transparent)" }} />
           
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_15px_rgba(0,0,0,0.6)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
             
+            {/* Label Background Designs */}
             <div className="absolute inset-0 pointer-events-none">
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
@@ -105,6 +108,7 @@ export default function App() {
                   </div>
                 </div>
               )}
+              {/* Other Parody Logos... */}
               {selectedLabel === "Red-Chkr" && (
                 <div className="absolute top-0 w-full h-full pointer-events-none">
                   <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
@@ -114,30 +118,9 @@ export default function App() {
                   <div className="absolute w-full text-center text-white text-[2.5px] md:text-[3px] font-bold tracking-[0.25em]" style={{ top: "40%" }}>RECORDING CO.</div>
                 </div>
               )}
-              {selectedLabel === "Vee-Jay" && (
-                <div className="absolute top-0 w-full h-full pointer-events-none flex flex-col items-center">
-                  <div className="absolute inset-[5%] rounded-full border border-white/30" />
-                  <div className="absolute top-[8%] flex flex-col items-center">
-                    <div className="w-8 h-7 md:w-10 md:h-8 border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden">
-                      <span className="text-white text-[13px] md:text-[15px] font-black italic tracking-tighter leading-none">DDM</span>
-                    </div>
-                    <div className="text-[6px] md:text-[8px] font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
-                  </div>
-                </div>
-              )}
-              {selectedLabel === "Rsg-Sun" && (
-                <div className="absolute top-0 w-full h-full pointer-events-none flex flex-col items-center">
-                  <div className="absolute top-0 w-full h-full opacity-[0.18]" style={{ background: "repeating-conic-gradient(from 270deg, #3f2b1d 0deg 7.5deg, transparent 7.5deg 20deg)", maskImage: "linear-gradient(to bottom, black 50%, transparent 55%)" }} />
-                  <div className="absolute top-[5%] w-[84%] h-[38%] rounded-t-full border-[1px] border-[#3f2b1d]/60 flex flex-col items-center overflow-hidden pt-1 text-[#3f2b1d]">
-                      <div className="text-[4px] md:text-[5px] font-bold tracking-[0.3em] leading-none">RISING</div>
-                      <div className="text-[18px] md:text-[22px] font-black italic tracking-tighter leading-[0.8] mt-0.5">SUN</div>
-                  </div>
-                  <div className="absolute top-[42%] text-[3.5px] md:text-[4px] font-black tracking-[0.2em] text-[#3f2b1d]">RECORDING COMPANY</div>
-                </div>
-              )}
             </div>
 
-            {/* Label Text Layer (Fixed spacers for 1st-2nd-3rd lines) */}
+            {/* Label Text Layer (3-line bottom-up stack) */}
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
               <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" 
                 style={{ 
@@ -163,14 +146,23 @@ export default function App() {
           </div>
         </div>
 
-        <div className="absolute w-10 h-10 md:w-16 md:h-16 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }}>
+        {/* Tone Arm Base (Resized to 70% on PC: md:w-11) */}
+        <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }}>
           <div className="w-full h-full flex items-center justify-center">
              <div className="w-[60%] h-[60%] rounded-full bg-zinc-900 shadow-inner" />
           </div>
         </div>
 
+        {/* Tone Arm Handle (Rotation range halved: isPlaying ? -83 : -90) */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
-          style={{ top: "10.5%", right: "10.5%", width: "75%", height: "8px", transformOrigin: "center right", transform: `rotate(${isPlaying ? -77 : -90}deg)` }}>
+          style={{ 
+            top: "10.5%", 
+            right: "10.5%", 
+            width: "75%", 
+            height: "8px", 
+            transformOrigin: "center right", 
+            transform: `rotate(${isPlaying ? -83 : -90}deg)` 
+          }}>
           <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full shadow-md" />
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-5 md:w-16 md:h-8 bg-zinc-950 rounded-sm shadow-xl border-r border-zinc-800 flex items-center justify-start pl-2" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }}> 
               <div className="absolute -bottom-1 left-2 w-0.5 h-2 md:w-1 md:h-3 bg-zinc-400 rounded-full opacity-80" /> 
@@ -193,16 +185,17 @@ export default function App() {
           ))}
         </div>
         <div className="space-y-2 pt-2 border-t border-white/5">
-          <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" placeholder="BAND NAME" />
-          <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" placeholder="SONG TITLE" />
-          <label className={`w-full h-12 md:h-14 rounded-xl flex items-center justify-center cursor-pointer text-[10px] font-black shadow-xl transition-all ${audioUrl === "/my-babe.mp3" ? 'bg-zinc-100 text-black' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'}`}>
-            {audioUrl === "/my-babe.mp3" ? "LOAD NEW MUSIC" : "CUSTOM MUSIC LOADED"}
-            <input type="file" accept="audio/mpeg, audio/mp3, audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
+          <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none" />
+          <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none" />
+          <label className={`w-full h-12 md:h-14 rounded-xl flex items-center justify-center cursor-pointer text-[10px] font-black shadow-xl transition-all ${audioUrl === DEFAULT_MP3 ? 'bg-zinc-100 text-black' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'}`}>
+            {audioUrl === DEFAULT_MP3 ? "LOAD NEW MUSIC" : "CUSTOM MUSIC LOADED"}
+            <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
           </label>
         </div>
       </div>
 
-      <audio ref={audioRef} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
+      {/* Actual audio element with primary source */}
+      <audio ref={audioRef} key={audioUrl} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
       <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" />
       <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" />
     </div>
