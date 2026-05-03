@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.3)
- * Fix: iOS Safari Audio Unlock & Always Play From Beginning
+ * Project: Vintage Vinyl Player (v2.6.4)
+ * Fix: Local Audio Upload & Player Reset
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -70,7 +70,7 @@ export default function App() {
     if (!isPlaying) {
       setIsPlaying(true); 
       
-      // 🍏 iOS/Safari対策：ボタンが押された瞬間に「ミュート」で一瞬再生し、ブラウザの再生制限を解除する
+      // 🍏 iOS/Safari対策
       const audiosToUnlock = [audioRef.current, sePlayRef.current];
       audiosToUnlock.forEach(audio => {
         if (audio) {
@@ -95,10 +95,9 @@ export default function App() {
         } 
       }, 400); 
       
-      // 音楽の再生
+      // 音楽の再生（毎回最初から）
       setTimeout(() => { 
         if (audioRef.current) {
-          // ★レコードらしく毎回最初(0秒)から再生する設定
           audioRef.current.currentTime = 0; 
           audioRef.current.play(); 
         }
@@ -217,18 +216,18 @@ export default function App() {
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <div className="flex gap-2">
             
-            {/* ★ LOAD MUSICの処理も更新：新しい曲を確実に読み込ませる */}
+            {/* ★ 変更：曲をロードした時に、回転中なら一旦停止させる処理を追加 */}
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
               LOAD MUSIC
               <input type="file" accept="audio/*, .m4a" className="hidden" onChange={(e) => { 
                 const f = e.target.files?.[0]; 
                 if (f) { 
+                  if (isPlaying) {
+                    setIsPlaying(false);
+                    if (audioRef.current) audioRef.current.pause();
+                  }
                   setAudioUrl(URL.createObjectURL(f)); 
                   setSongTitle(f.name.replace(/\.[^/.]+$/, "").toUpperCase()); 
-                  if (audioRef.current) {
-                    audioRef.current.pause();
-                    audioRef.current.load();
-                  }
                 } 
               }} />
             </label>
@@ -241,8 +240,8 @@ export default function App() {
         </div>
       </div>
       
-      {/* ★ audioタグから key={audioUrl} を削除（要素を使い回すため） */}
-      <audio ref={audioRef} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
+      {/* ★ 変更：key={audioUrl} を復活させて、ブラウザに「新しい曲が来た」と強制認識させる */}
+      <audio ref={audioRef} key={audioUrl} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
       <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" />
       <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" />
     </div>
