@@ -1,12 +1,14 @@
 /**
- * Project: Vintage Vinyl Player (v2.5.1)
- * Fix: Restore Label Designs & Synchronize STOP SE with animation
+ * Project: Vintage Vinyl Player (v2.5.4)
+ * Restore: Precise Needle SE sync, Correct Label Designs
+ * Activate: Stripe Live Mode with verified pk_live key
  */
 
 import React, { useEffect, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe("pk_live_51TOrvdDnNK2gZIdwXeJmjYTBMGrDPDWA2HBkJZPJ1Mfa7cKCOGCUgYO7oCYWUYxtZL20xX4MuzKlOjnxizPJDm2x00Q66qiEnh");
+// 鈴木さんが取得した本番用キーをセット
+const stripePromise = loadStripe("pk_live_51TOrvdDnNK2gZIdwXeJmjYTBMGrDPDWA2HBkJZPJ1Mfa7cKC0GCUgY07oCYWUYxtZL20xX4MuzKlOjnxizPJDm2x00Q66qiEnh");
 
 export default function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -17,8 +19,7 @@ export default function App() {
   const speedRef = useRef(0);
   const rafRef = useRef<number | null>(null);
 
-  const DEFAULT_MP3 = "/my_babe.mp3";
-  const [audioUrl, setAudioUrl] = useState<string | null>(DEFAULT_MP3);
+  const [audioUrl, setAudioUrl] = useState<string | null>("/my_babe.mp3");
   const [isPlaying, setIsPlaying] = useState(false);
   const [bandName, setBandName] = useState("DROP DOWN MAMA");
   const [songTitle, setSongTitle] = useState("MY BABE");
@@ -67,29 +68,29 @@ export default function App() {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, [isPlaying]);
 
-  const togglePlay = async () => {
+  const togglePlay = () => {
     const audio = audioRef.current;
-    if (!audio || !audioUrl) return;
+    if (!audio) return;
 
     if (!isPlaying) {
       setIsPlaying(true); 
-      // PLAY時は0.4秒のタメを維持
+      // PLAY: 0.4秒後に針音
       setTimeout(() => { 
         if (sePlayRef.current) { 
           sePlayRef.current.currentTime = 0; 
-          sePlayRef.current.play().catch(() => {}); 
+          sePlayRef.current.play(); 
         } 
       }, 400); 
-      setTimeout(() => audio.play().catch(() => {}), 1000); 
+      // PLAY: 1.0秒後に音楽
+      setTimeout(() => { if (audioRef.current) audioRef.current.play(); }, 1000); 
     } else {
-      // STOP時は「針を上げる音」を先に鳴らしてからアニメーションを止める
+      // STOP: 即座にすべての同期を停止し、音を鳴らす
+      audio.pause(); 
       if (seStopRef.current) { 
         seStopRef.current.currentTime = 0; 
-        seStopRef.current.play().catch(() => {}); 
+        seStopRef.current.play(); 
       }
-      audio.pause(); 
-      // 音が鳴った瞬間に針を上げる
-      setIsPlaying(false); 
+      setIsPlaying(false); // 即座に針が上がる動き
     }
   };
 
@@ -98,22 +99,19 @@ export default function App() {
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
-          
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
-            
             <div className="absolute inset-0 pointer-events-none">
-              {/* ロゴデザインの復元 */}
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
-                  <div className="absolute top-0 w-full h-[52%] flex flex-col items-center justify-end pb-[8%] z-10 text-white">
+                  <div className="absolute top-0 w-full h-[52%] flex flex-col items-center justify-end pb-[10%] z-10 text-white">
                       <span className="text-[10px] md:text-[12px] mb-0.5">♛</span>
                       <div className="flex items-center gap-2">
                         <span className="text-[14px] md:text-[16px]">†</span>
                         <div className="flex flex-col items-center">
                           <div className="text-[16px] md:text-[18px] font-black tracking-tighter leading-none">2120</div>
-                          <div className="text-[3px] md:text-[3.5px] font-bold tracking-[0.15em] mt-0.5 uppercase opacity-90">RECORD CORP.</div>
+                          <div className="text-[3px] md:text-[3.5px] font-bold tracking-[0.15em] mt-0.5 uppercase">RECORD CORP.</div>
                         </div>
                         <span className="text-[14px] md:text-[16px]">♘</span>
                       </div>
@@ -151,8 +149,7 @@ export default function App() {
                 </div>
               )}
             </div>
-
-            <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
+            <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[16%] px-1">
               <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: '6px' }}>{songTitle}</div>
               <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
@@ -189,15 +186,7 @@ export default function App() {
           <div className="flex gap-2">
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
               LOAD MUSIC
-              <input type="file" accept="audio/*, .m4a" className="hidden" 
-                onChange={(e) => { 
-                  const f = e.target.files?.[0]; 
-                  if (f) {
-                    setAudioUrl(URL.createObjectURL(f));
-                    setSongTitle(f.name.replace(/\.[^/.]+$/, "").toUpperCase()); 
-                  }
-                }} 
-              />
+              <input type="file" accept="audio/*, .m4a" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) { setAudioUrl(URL.createObjectURL(f)); setSongTitle(f.name.replace(/\.[^/.]+$/, "").toUpperCase()); } }} />
             </label>
             <button onClick={handleDonation} className="flex-1 h-12 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center text-amber-500 transition-all active:scale-95">
               <span className="text-[9px] font-black tracking-widest">TIP 100 JPY</span>
