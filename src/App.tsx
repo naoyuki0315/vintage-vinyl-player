@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.2)
- * Fix: Needle Drop & Stop Sound Timing (Shortened)
+ * Project: Vintage Vinyl Player (v2.6.3)
+ * Fix: iOS Safari Audio Unlock & Always Play From Beginning
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -33,7 +33,7 @@ export default function App() {
   };
 
   /**
-   * 💳 投げ銭ボタンの処理 (最新方式)
+   * 💳 投げ銭ボタンの処理
    */
   const handleDonation = () => {
     const paymentLink = "https://buy.stripe.com/eVq5kD034glf4eFgWpdIA00"; 
@@ -70,27 +70,46 @@ export default function App() {
     if (!isPlaying) {
       setIsPlaying(true); 
       
-      // ★変更箇所：PLAY時の針を落とす音も指定時間でカットする
+      // 🍏 iOS/Safari対策：ボタンが押された瞬間に「ミュート」で一瞬再生し、ブラウザの再生制限を解除する
+      const audiosToUnlock = [audioRef.current, sePlayRef.current];
+      audiosToUnlock.forEach(audio => {
+        if (audio) {
+          audio.muted = true;
+          audio.play().then(() => {
+            audio.pause();
+            audio.muted = false;
+          }).catch(() => {
+            audio.muted = false;
+          });
+        }
+      });
+
+      // 針を落とす音
       setTimeout(() => { 
         if (sePlayRef.current) { 
           sePlayRef.current.currentTime = 0; 
           sePlayRef.current.play(); 
-          
-          // ここで落とす音の長さを強制カット（現在は300ミリ秒）
           setTimeout(() => {
             if (sePlayRef.current) sePlayRef.current.pause();
           }, 300);
         } 
       }, 400); 
       
-      setTimeout(() => { if (audioRef.current) audioRef.current.play(); }, 1000); 
+      // 音楽の再生
+      setTimeout(() => { 
+        if (audioRef.current) {
+          // ★レコードらしく毎回最初(0秒)から再生する設定
+          audioRef.current.currentTime = 0; 
+          audioRef.current.play(); 
+        }
+      }, 1000); 
+
     } else {
       if (audioRef.current) audioRef.current.pause(); 
       if (seStopRef.current) { 
         seStopRef.current.currentTime = 0; 
         seStopRef.current.play(); 
         
-        // ★STOP時のノイズ音を強制的に止める（前回設定した300ミリ秒）
         setTimeout(() => {
           if (seStopRef.current) seStopRef.current.pause();
         }, 300);
@@ -102,13 +121,11 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
       
-      {/* 影の深さを復元 (0.95) */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
         
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
-          {/* 光の反射を復元 (0.35) */}
           <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10" 
                style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
           
@@ -199,10 +216,23 @@ export default function App() {
           <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <div className="flex gap-2">
+            
+            {/* ★ LOAD MUSICの処理も更新：新しい曲を確実に読み込ませる */}
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
               LOAD MUSIC
-              <input type="file" accept="audio/*, .m4a" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) { setAudioUrl(URL.createObjectURL(f)); setSongTitle(f.name.replace(/\.[^/.]+$/, "").toUpperCase()); } }} />
+              <input type="file" accept="audio/*, .m4a" className="hidden" onChange={(e) => { 
+                const f = e.target.files?.[0]; 
+                if (f) { 
+                  setAudioUrl(URL.createObjectURL(f)); 
+                  setSongTitle(f.name.replace(/\.[^/.]+$/, "").toUpperCase()); 
+                  if (audioRef.current) {
+                    audioRef.current.pause();
+                    audioRef.current.load();
+                  }
+                } 
+              }} />
             </label>
+            
             <button onClick={handleDonation} className="flex-1 h-12 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center text-amber-500 transition-all active:scale-95">
               <span className="text-[9px] font-black tracking-widest">TIP 100 JPY</span>
               <span className="text-[7px] opacity-70">缶コーヒーをおごる</span>
@@ -210,7 +240,9 @@ export default function App() {
           </div>
         </div>
       </div>
-      <audio ref={audioRef} key={audioUrl} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
+      
+      {/* ★ audioタグから key={audioUrl} を削除（要素を使い回すため） */}
+      <audio ref={audioRef} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
       <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" />
       <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" />
     </div>
