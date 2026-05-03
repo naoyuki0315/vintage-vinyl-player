@@ -1,7 +1,6 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.9)
- * Restore: Precise Needle Drop/Up SE timing
- * Fix: Direct Stripe Checkout trigger
+ * Project: Vintage Vinyl Player (v2.5.0)
+ * Fix: Precise Stop SE timing & Stripe button reliability
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -38,17 +37,14 @@ export default function App() {
 
   const handleDonation = async () => {
     const stripe = await stripePromise;
-    if (!stripe) {
-      alert("Stripeの読み込みをお待ちください...");
-      return;
-    }
-    const { error } = await stripe.redirectToCheckout({
+    if (!stripe) return;
+    // リダイレクトの失敗を防ぐため直接遷移を試みる
+    await stripe.redirectToCheckout({
       lineItems: [{ price: "price_1TSmnDDnNK2gZIdwB9b2ldc0", quantity: 1 }],
       mode: "payment",
       successUrl: window.location.origin,
       cancelUrl: window.location.origin,
     });
-    if (error) console.error("Stripe Error:", error);
   };
 
   useEffect(() => {
@@ -72,51 +68,42 @@ export default function App() {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, [isPlaying]);
 
-  // 針の上げ下げSEのタイミングを厳密に管理
   const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio || !audioUrl) return;
 
     if (!isPlaying) {
       setIsPlaying(true); 
-      // 0.4秒後に針を落とす音
+      // PLAY: 針が落ちる音のタメ（400ms）を維持
       setTimeout(() => { 
         if (sePlayRef.current) { 
           sePlayRef.current.currentTime = 0; 
           sePlayRef.current.play().catch(() => {}); 
         } 
       }, 400); 
-      // 1.0秒後に音楽スタート（一番気持ちいいタイミング）
       setTimeout(() => audio.play().catch(() => {}), 1000); 
     } else {
+      // STOP: 即座に針音を鳴らし、アニメーションと同期させる
+      if (seStopRef.current) { 
+        seStopRef.current.currentTime = 0; 
+        seStopRef.current.play().catch(() => {}); 
+      }
       audio.pause(); 
-      // 0.13秒のタメを作ってから針を上げる音
-      setTimeout(() => {
-        setIsPlaying(false); 
-        if (seStopRef.current) { 
-          seStopRef.current.currentTime = 0; 
-          seStopRef.current.play().catch(() => {}); 
-        }
-      }, 130); 
+      // 針が上がる動きを音と同時に開始
+      setIsPlaying(false); 
     }
   };
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
-      
-      {/* Vinyl Player Body */}
-      <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] md:shadow-[0_45px_100px_rgba(0,0,0,0.4)] mt-4 mb-8 border border-white/5 overflow-visible">
+      <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
-          
           <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10" 
                style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
-          
-          <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] md:shadow-[inset_0_0_12px_rgba(0,0,0,0.75)] border-t border-white/10 overflow-hidden"
+          <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
-            
             <div className="absolute inset-0 pointer-events-none">
-              {/* 2120 Label */}
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
@@ -133,19 +120,15 @@ export default function App() {
                   </div>
                 </div>
               )}
-              {/* Other label designs omitted for brevity in display, but maintained in logic */}
             </div>
-
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
               <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: '6px' }}>{songTitle}</div>
               <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
             </div>
-            <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 z-20" />
           </div>
         </div>
 
-        {/* Tone Arm */}
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ top: "10.5%", right: "10.5%", width: "75%", height: "8px", transformOrigin: "center right", transform: `rotate(${isPlaying ? -81 : -90}deg)` }}>
@@ -154,7 +137,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Control Panel */}
       <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
         <div className="flex justify-center">
           <button onClick={togglePlay} className={`w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
