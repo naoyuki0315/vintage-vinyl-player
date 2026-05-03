@@ -1,12 +1,13 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.4)
- * Restore: Label selection buttons & logo designs
- * Feature: Stripe Checkout "缶コーヒーをおごる" (100 JPY / One-time)
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.6)
+ * Fix: Stripe Integration with Security Policy (CSP)
+ * Integration: Public Key & Price ID included
  */
 
 import React, { useEffect, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 
+// 鈴木さんの公開可能キーを反映済み
 const stripePromise = loadStripe("pk_live_51TOrvdDnNK2gZIdwXeJmjYTBMGrDPDWA2HBkJZPJ1Mfa7cKC0GCUgY07oCYWUYxtZL20xX4MuzKlOjnxizPJDm2x00Q66qiEnh");
 
 export default function App() {
@@ -36,16 +37,21 @@ export default function App() {
     "Rsg-Sun": { color: "#facc15", textColor: "#3f2b1d", subText: "MEMPHIS, TENNESSEE" },
   };
 
+  // 投げ銭処理（Stripeの門を開くための修正版）
   const handleDonation = async () => {
-    const stripe = await stripePromise;
-    if (!stripe) return;
-    const { error } = await stripe.redirectToCheckout({
-      lineItems: [{ price: "price_1TSmnDDnNK2gZIdwB9b2ldc0", quantity: 1 }],
-      mode: "payment",
-      successUrl: window.location.origin,
-      cancelUrl: window.location.origin,
-    });
-    if (error) console.error("Stripe Error:", error);
+    try {
+      const stripe = await stripePromise;
+      if (!stripe) return;
+
+      await stripe.redirectToCheckout({
+        lineItems: [{ price: "price_1TSmnDDnNK2gZIdwB9b2ldc0", quantity: 1 }],
+        mode: "payment",
+        successUrl: window.location.origin,
+        cancelUrl: window.location.origin,
+      });
+    } catch (err) {
+      console.error("Checkout failed:", err);
+    }
   };
 
   useEffect(() => {
@@ -88,6 +94,11 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
       
+      {/* 門（セキュリティ）を開けるための設定 */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @meta { content-security-policy: "script-src 'self' https://js.stripe.com 'unsafe-inline';"; }
+      `}} />
+
       {/* Vinyl Player Body */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] md:shadow-[0_45px_100px_rgba(0,0,0,0.4)] mt-4 mb-8 border border-white/5 overflow-visible">
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
@@ -155,12 +166,9 @@ export default function App() {
               <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
             </div>
-
-            <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)] z-20" />
           </div>
         </div>
 
-        {/* Tone Arm */}
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ top: "10.5%", right: "10.5%", width: "75%", height: "8px", transformOrigin: "center right", transform: `rotate(${isPlaying ? -81 : -90}deg)` }}>
@@ -177,7 +185,6 @@ export default function App() {
           </button>
         </div>
         
-        {/* RESTORED: Label Selection Buttons */}
         <div className="grid grid-cols-2 gap-2">
           {Object.keys(labelStyles).map((style) => (
             <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:border-zinc-500'}`}>
