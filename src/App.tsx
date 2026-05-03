@@ -1,6 +1,13 @@
+/**
+ * Project: Vintage Vinyl Player (v2.5.6)
+ * Fix: Reinforced Stripe Logic & Preserved Designs
+ * Target: Ensure Donation Button works on iPhone Safari
+ */
+
 import React, { useEffect, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 
+// 鈴木さんの本番用公開可能キー
 const stripePromise = loadStripe("pk_live_51TOrvdDnNK2gZIdwXeJmjYTBMGrDPDWA2HBkJZPJ1Mfa7cKC0GCUgY07oCYWUYxtZL20xX4MuzKlOjnxizPJDm2x00Q66qiEnh");
 
 export default function App() {
@@ -29,15 +36,23 @@ export default function App() {
     "Rsg-Sun": { color: "#facc15", textColor: "#3f2b1d", subText: "MEMPHIS, TENNESSEE" },
   };
 
+  // 投げ銭ボタンの処理：ポップアップブロックを回避し、確実に遷移させる
   const handleDonation = async () => {
     const stripe = await stripePromise;
-    if (stripe) {
-      stripe.redirectToCheckout({
-        lineItems: [{ price: "price_1TSmnDDnNK2gZIdwB9b2ldc0", quantity: 1 }],
-        mode: "payment",
-        successUrl: window.location.origin,
-        cancelUrl: window.location.origin,
-      });
+    if (!stripe) {
+      alert("Stripeを読み込み中です。もう一度お試しください。");
+      return;
+    }
+    
+    const { error } = await stripe.redirectToCheckout({
+      lineItems: [{ price: "price_1TSmnDDnNK2gZIdwB9b2ldc0", quantity: 1 }],
+      mode: "payment",
+      successUrl: window.location.origin,
+      cancelUrl: window.location.origin,
+    });
+
+    if (error) {
+      alert("エラーが発生しました: " + error.message);
     }
   };
 
@@ -79,12 +94,21 @@ export default function App() {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
-      {/* Vinyl Shadow Restored to 0_20px_50px_rgba(0,0,0,0.95) */}
+      
+      {/* Vinyl Body: 鈴木さんのこだわりの「光と影」を維持 */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
+        
+        {/* レコード盤面の質感 */}
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
+          
+          {/* 光の反射（Conic Gradient） */}
+          <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10" 
+               style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
+          
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
+            
             <div className="absolute inset-0 pointer-events-none">
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
@@ -102,8 +126,39 @@ export default function App() {
                   </div>
                 </div>
               )}
-              {/* Other Labels Restored Similarly */}
+              {/* 他のラベルも位置を維持 */}
+              {selectedLabel === "Red-Chkr" && (
+                <div className="absolute top-0 w-full h-full">
+                  <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
+                    style={{ backgroundImage: `linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)`, backgroundSize: '12px 12px', borderRadius: '50% 50% 0 0' }} 
+                  />
+                  <div className="absolute top-[14%] w-full text-center text-white font-serif italic font-black text-[11px] md:text-[13px] tracking-tighter scale-y-125">Red Checker</div>
+                  <div className="absolute w-full text-center text-white text-[2.5px] md:text-[2.8px] font-bold tracking-[0.25em]" style={{ top: "42%" }}>RECORDING CO.</div>
+                </div>
+              )}
+              {selectedLabel === "Vee-Jay" && (
+                <div className="absolute top-0 w-full h-full flex flex-col items-center">
+                  <div className="absolute inset-[5%] rounded-full border border-white/30" />
+                  <div className="absolute top-[7%] flex flex-col items-center">
+                    <div className="w-7 h-6 md:w-10 md:h-8 border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden">
+                      <span className="text-white text-[11px] md:text-[13px] font-black italic tracking-tighter leading-none">DDM</span>
+                    </div>
+                    <div className="text-[5px] md:text-[7px] font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
+                  </div>
+                </div>
+              )}
+              {selectedLabel === "Rsg-Sun" && (
+                <div className="absolute top-0 w-full h-full flex flex-col items-center">
+                  <div className="absolute top-0 w-full h-full opacity-[0.18]" style={{ background: "repeating-conic-gradient(from 270deg, #3f2b1d 0deg 7.5deg, transparent 7.5deg 20deg)", maskImage: "linear-gradient(to bottom, black 50%, transparent 55%)" }} />
+                  <div className="absolute top-[5%] w-[84%] h-[38%] rounded-t-full border-[1px] border-[#3f2b1d]/60 flex flex-col items-center pt-1 text-[#3f2b1d]">
+                      <div className="text-[4px] md:text-[5px] font-bold tracking-[0.3em] leading-none">RISING</div>
+                      <div className="text-[18px] md:text-[22px] font-black italic tracking-tighter leading-[0.8] mt-0.5">SUN</div>
+                  </div>
+                  <div className="absolute top-[42%] text-[3.5px] md:text-[4px] font-black tracking-[0.2em] text-[#3f2b1d]">RECORDING COMPANY</div>
+                </div>
+              )}
             </div>
+
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[16%] px-1">
               <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: '6px' }}>{songTitle}</div>
               <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
@@ -113,6 +168,7 @@ export default function App() {
           </div>
         </div>
 
+        {/* トーンアーム */}
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ top: "10.5%", right: "10.5%", width: "75%", height: "8px", transformOrigin: "center right", transform: `rotate(${isPlaying ? -81 : -90}deg)` }}>
@@ -121,6 +177,7 @@ export default function App() {
         </div>
       </div>
 
+      {/* 操作パネル */}
       <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
         <div className="flex justify-center">
           <button onClick={togglePlay} className={`w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
