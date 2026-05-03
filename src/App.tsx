@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.4)
- * Fix: Local Audio Upload & Player Reset
+ * Project: Vintage Vinyl Player (v2.6.5)
+ * Fix: Removed iOS Hack causing mute bug & Stable Local File Load
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -70,21 +70,7 @@ export default function App() {
     if (!isPlaying) {
       setIsPlaying(true); 
       
-      // 🍏 iOS/Safari対策
-      const audiosToUnlock = [audioRef.current, sePlayRef.current];
-      audiosToUnlock.forEach(audio => {
-        if (audio) {
-          audio.muted = true;
-          audio.play().then(() => {
-            audio.pause();
-            audio.muted = false;
-          }).catch(() => {
-            audio.muted = false;
-          });
-        }
-      });
-
-      // 針を落とす音
+      // 針を落とす音（300msでカットしてキレを良くする）
       setTimeout(() => { 
         if (sePlayRef.current) { 
           sePlayRef.current.currentTime = 0; 
@@ -95,7 +81,7 @@ export default function App() {
         } 
       }, 400); 
       
-      // 音楽の再生（毎回最初から）
+      // 音楽の再生（毎回最初から再生するアナログ仕様）
       setTimeout(() => { 
         if (audioRef.current) {
           audioRef.current.currentTime = 0; 
@@ -109,6 +95,7 @@ export default function App() {
         seStopRef.current.currentTime = 0; 
         seStopRef.current.play(); 
         
+        // 針を上げる音も300msでカット
         setTimeout(() => {
           if (seStopRef.current) seStopRef.current.pause();
         }, 300);
@@ -216,18 +203,27 @@ export default function App() {
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <div className="flex gap-2">
             
-            {/* ★ 変更：曲をロードした時に、回転中なら一旦停止させる処理を追加 */}
+            {/* ★ 変更：一番シンプルで確実な読み込み処理に戻しました */}
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
               LOAD MUSIC
               <input type="file" accept="audio/*, .m4a" className="hidden" onChange={(e) => { 
                 const f = e.target.files?.[0]; 
                 if (f) { 
+                  // 再生中なら一旦止める
                   if (isPlaying) {
                     setIsPlaying(false);
                     if (audioRef.current) audioRef.current.pause();
                   }
-                  setAudioUrl(URL.createObjectURL(f)); 
+                  
+                  // 新しい曲のURLを作ってセットし、Audio要素に強制ロードさせる
+                  const newUrl = URL.createObjectURL(f);
+                  setAudioUrl(newUrl); 
                   setSongTitle(f.name.replace(/\.[^/.]+$/, "").toUpperCase()); 
+                  
+                  if (audioRef.current) {
+                    audioRef.current.src = newUrl;
+                    audioRef.current.load();
+                  }
                 } 
               }} />
             </label>
@@ -240,8 +236,8 @@ export default function App() {
         </div>
       </div>
       
-      {/* ★ 変更：key={audioUrl} を復活させて、ブラウザに「新しい曲が来た」と強制認識させる */}
-      <audio ref={audioRef} key={audioUrl} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
+      {/* 綺麗でシンプルなAudio要素に戻しました */}
+      <audio ref={audioRef} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
       <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" />
       <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" />
     </div>
