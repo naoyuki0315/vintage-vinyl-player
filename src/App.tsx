@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.0)
- * Fix: Standard Stripe Payment Link (2026 Compatible)
+ * Project: Vintage Vinyl Player (v2.6.1)
+ * Fix: Standard Stripe Payment Link & Needle Stop Sound Timing
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -34,7 +34,6 @@ export default function App() {
 
   /**
    * 💳 投げ銭ボタンの処理 (最新方式)
-   * 43行目付近：この下の "https://buy.stripe.com/..." をあなたのリンクに書き換えてください
    */
   const handleDonation = () => {
     const paymentLink = "https://buy.stripe.com/eVq5kD034glf4eFgWpdIA00"; 
@@ -74,7 +73,15 @@ export default function App() {
       setTimeout(() => { if (audioRef.current) audioRef.current.play(); }, 1000); 
     } else {
       if (audioRef.current) audioRef.current.pause(); 
-      if (seStopRef.current) { seStopRef.current.currentTime = 0; seStopRef.current.play(); }
+      if (seStopRef.current) { 
+        seStopRef.current.currentTime = 0; 
+        seStopRef.current.play(); 
+        
+        // ★追加：指定した時間（300ミリ秒）でノイズ音を強制的に止める
+        setTimeout(() => {
+          if (seStopRef.current) seStopRef.current.pause();
+        }, 300);
+      }
       setIsPlaying(false); 
     }
   };
