@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.6)
- * Fix: Clean React Audio Re-mounting (Fixed Silent Upload Bug)
+ * Project: Vintage Vinyl Player (v2.6.8)
+ * Fix: PC/Mac Audio Upload Bug (Direct src + load) & Red-Chkr Quotes
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -45,6 +45,13 @@ export default function App() {
     }
   };
 
+  // ★ 確実なオーディオロード処理（URLが変わるたびにブラウザに強制読み込みさせる）
+  useEffect(() => {
+    if (audioRef.current && audioUrl) {
+      audioRef.current.load();
+    }
+  }, [audioUrl]);
+
   useEffect(() => {
     let lastTs = 0;
     const tick = (ts: number) => {
@@ -70,22 +77,22 @@ export default function App() {
     if (!isPlaying) {
       setIsPlaying(true); 
       
-      // 針を落とす音（300msでカットしてキレを良くする）
+      // 針を落とす音
       setTimeout(() => { 
         if (sePlayRef.current) { 
           sePlayRef.current.currentTime = 0; 
-          sePlayRef.current.play(); 
+          sePlayRef.current.play().catch(()=>{}); 
           setTimeout(() => {
             if (sePlayRef.current) sePlayRef.current.pause();
           }, 300);
         } 
       }, 400); 
       
-      // 音楽の再生（毎回最初から再生するアナログ仕様）
+      // 音楽の再生
       setTimeout(() => { 
         if (audioRef.current) {
           audioRef.current.currentTime = 0; 
-          audioRef.current.play(); 
+          audioRef.current.play().catch(e => console.log("Play error:", e)); 
         }
       }, 1000); 
 
@@ -93,9 +100,9 @@ export default function App() {
       if (audioRef.current) audioRef.current.pause(); 
       if (seStopRef.current) { 
         seStopRef.current.currentTime = 0; 
-        seStopRef.current.play(); 
+        seStopRef.current.play().catch(()=>{}); 
         
-        // 針を上げる音も300msでカット
+        // 針を上げる音
         setTimeout(() => {
           if (seStopRef.current) seStopRef.current.pause();
         }, 300);
@@ -103,6 +110,9 @@ export default function App() {
       setIsPlaying(false); 
     }
   };
+
+  // ★ レッドチェッカーの時だけダブルクォーテーションを付ける
+  const displaySongTitle = selectedLabel === "Red-Chkr" ? `"${songTitle}"` : songTitle;
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
@@ -168,7 +178,8 @@ export default function App() {
             </div>
 
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[16%] px-1">
-              <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: '6px' }}>{songTitle}</div>
+              {/* ★ ここで displaySongTitle を呼び出して、クォーテーションを反映させます */}
+              <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: '6px' }}>{displaySongTitle}</div>
               <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
             </div>
@@ -203,13 +214,15 @@ export default function App() {
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <div className="flex gap-2">
             
-            {/* ★ 修正箇所：余計な直接操作を消し、純粋にURLだけを更新する */}
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
               LOAD MUSIC
               <input type="file" accept="audio/*, .m4a" className="hidden" onChange={(e) => { 
                 const f = e.target.files?.[0]; 
                 if (f) { 
-                  if (isPlaying) setIsPlaying(false);
+                  if (isPlaying) {
+                    setIsPlaying(false);
+                    if (audioRef.current) audioRef.current.pause();
+                  }
                   
                   const newUrl = URL.createObjectURL(f);
                   setAudioUrl(newUrl); 
@@ -226,8 +239,8 @@ export default function App() {
         </div>
       </div>
       
-      {/* ★ 修正箇所：key={audioUrl} を復活。URLが変わるたびに新品のプレーヤーが裏側に作られます */}
-      <audio ref={audioRef} key={audioUrl} src={audioUrl ?? undefined} preload="auto" onEnded={() => setIsPlaying(false)} />
+      {/* ★ ここを一番シンプルでバグの起きない src 指定に変更しました */}
+      <audio ref={audioRef} src={audioUrl || undefined} preload="auto" onEnded={() => setIsPlaying(false)} />
       <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" />
       <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" />
     </div>
