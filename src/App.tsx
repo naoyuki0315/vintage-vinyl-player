@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.5)
- * Fix: Removed iOS Hack causing mute bug & Stable Local File Load
+ * Project: Vintage Vinyl Player (v2.6.6)
+ * Fix: Clean React Audio Re-mounting (Fixed Silent Upload Bug)
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -203,27 +203,17 @@ export default function App() {
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <div className="flex gap-2">
             
-            {/* ★ 変更：一番シンプルで確実な読み込み処理に戻しました */}
+            {/* ★ 修正箇所：余計な直接操作を消し、純粋にURLだけを更新する */}
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
               LOAD MUSIC
               <input type="file" accept="audio/*, .m4a" className="hidden" onChange={(e) => { 
                 const f = e.target.files?.[0]; 
                 if (f) { 
-                  // 再生中なら一旦止める
-                  if (isPlaying) {
-                    setIsPlaying(false);
-                    if (audioRef.current) audioRef.current.pause();
-                  }
+                  if (isPlaying) setIsPlaying(false);
                   
-                  // 新しい曲のURLを作ってセットし、Audio要素に強制ロードさせる
                   const newUrl = URL.createObjectURL(f);
                   setAudioUrl(newUrl); 
                   setSongTitle(f.name.replace(/\.[^/.]+$/, "").toUpperCase()); 
-                  
-                  if (audioRef.current) {
-                    audioRef.current.src = newUrl;
-                    audioRef.current.load();
-                  }
                 } 
               }} />
             </label>
@@ -236,8 +226,8 @@ export default function App() {
         </div>
       </div>
       
-      {/* 綺麗でシンプルなAudio要素に戻しました */}
-      <audio ref={audioRef} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
+      {/* ★ 修正箇所：key={audioUrl} を復活。URLが変わるたびに新品のプレーヤーが裏側に作られます */}
+      <audio ref={audioRef} key={audioUrl} src={audioUrl ?? undefined} preload="auto" onEnded={() => setIsPlaying(false)} />
       <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" />
       <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" />
     </div>
