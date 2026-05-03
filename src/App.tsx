@@ -1,12 +1,11 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.7)
- * Fix: Explicit CSP meta tag for Stripe execution
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.8)
+ * Update: Added .m4a support & Auto-title from filename
  */
 
 import React, { useEffect, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 
-// 公開可能キー
 const stripePromise = loadStripe("pk_live_51TOrvdDnNK2gZIdwXeJmjYTBMGrDPDWA2HBkJZPJ1Mfa7cKC0GCUgY07oCYWUYxtZL20xX4MuzKlOjnxizPJDm2x00Q66qiEnh");
 
 export default function App() {
@@ -90,7 +89,6 @@ export default function App() {
 
   return (
     <>
-      {/* 🛡️ 重要：Stripeの動作を許可するセキュリティ設定 */}
       <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://js.stripe.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; connect-src 'self' https://api.stripe.com;" />
 
       <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
@@ -99,7 +97,7 @@ export default function App() {
         <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] md:shadow-[0_45px_100px_rgba(0,0,0,0.4)] mt-4 mb-8 border border-white/5 overflow-visible">
           <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
             style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
-            <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10 transition-opacity" 
+            <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10" 
                  style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
             
             <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] md:shadow-[inset_0_0_12px_rgba(0,0,0,0.75)] border-t border-white/10 overflow-hidden"
@@ -122,6 +120,7 @@ export default function App() {
                     </div>
                   </div>
                 )}
+                {/* (その他のラベルデザインは維持) */}
                 {selectedLabel === "Red-Chkr" && (
                   <div className="absolute top-0 w-full h-full">
                     <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
@@ -194,7 +193,16 @@ export default function App() {
             <div className="flex gap-2">
               <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
                 LOAD MUSIC
-                <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
+                {/* 修正ポイント: m4aを明示的に許可し、ファイル名を曲名に自動セット */}
+                <input type="file" accept="audio/*, .m4a" className="hidden" 
+                  onChange={(e) => { 
+                    const f = e.target.files?.[0]; 
+                    if (f) {
+                      setAudioUrl(URL.createObjectURL(f));
+                      setSongTitle(f.name.replace(/\.[^/.]+$/, "").toUpperCase()); // 拡張子を除去してセット
+                    }
+                  }} 
+                />
               </label>
               <button onClick={handleDonation} className="flex-1 h-12 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center text-amber-500 transition-all active:scale-95">
                 <span className="text-[9px] font-black tracking-widest">TIP 100 JPY</span>
