@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.5.0)
- * Fix: Precise Stop SE timing & Stripe button reliability
+ * Project: Vintage Vinyl Player (v2.5.1)
+ * Fix: Restore Label Designs & Synchronize STOP SE with animation
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -38,7 +38,6 @@ export default function App() {
   const handleDonation = async () => {
     const stripe = await stripePromise;
     if (!stripe) return;
-    // リダイレクトの失敗を防ぐため直接遷移を試みる
     await stripe.redirectToCheckout({
       lineItems: [{ price: "price_1TSmnDDnNK2gZIdwB9b2ldc0", quantity: 1 }],
       mode: "payment",
@@ -74,7 +73,7 @@ export default function App() {
 
     if (!isPlaying) {
       setIsPlaying(true); 
-      // PLAY: 針が落ちる音のタメ（400ms）を維持
+      // PLAY時は0.4秒のタメを維持
       setTimeout(() => { 
         if (sePlayRef.current) { 
           sePlayRef.current.currentTime = 0; 
@@ -83,13 +82,13 @@ export default function App() {
       }, 400); 
       setTimeout(() => audio.play().catch(() => {}), 1000); 
     } else {
-      // STOP: 即座に針音を鳴らし、アニメーションと同期させる
+      // STOP時は「針を上げる音」を先に鳴らしてからアニメーションを止める
       if (seStopRef.current) { 
         seStopRef.current.currentTime = 0; 
         seStopRef.current.play().catch(() => {}); 
       }
       audio.pause(); 
-      // 針が上がる動きを音と同時に開始
+      // 音が鳴った瞬間に針を上げる
       setIsPlaying(false); 
     }
   };
@@ -99,11 +98,12 @@ export default function App() {
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
-          <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10" 
-               style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
+          
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
+            
             <div className="absolute inset-0 pointer-events-none">
+              {/* ロゴデザインの復元 */}
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
@@ -120,12 +120,44 @@ export default function App() {
                   </div>
                 </div>
               )}
+              {selectedLabel === "Red-Chkr" && (
+                <div className="absolute top-0 w-full h-full">
+                  <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
+                    style={{ backgroundImage: `linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)`, backgroundSize: '12px 12px', borderRadius: '50% 50% 0 0' }} 
+                  />
+                  <div className="absolute top-[14%] w-full text-center text-white font-serif italic font-black text-[11px] md:text-[13px] tracking-tighter scale-y-125">Red Checker</div>
+                  <div className="absolute w-full text-center text-white text-[2.5px] md:text-[2.8px] font-bold tracking-[0.25em]" style={{ top: "42%" }}>RECORDING CO.</div>
+                </div>
+              )}
+              {selectedLabel === "Vee-Jay" && (
+                <div className="absolute top-0 w-full h-full flex flex-col items-center">
+                  <div className="absolute inset-[5%] rounded-full border border-white/30" />
+                  <div className="absolute top-[7%] flex flex-col items-center">
+                    <div className="w-7 h-6 md:w-10 md:h-8 border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden">
+                      <span className="text-white text-[11px] md:text-[13px] font-black italic tracking-tighter leading-none">DDM</span>
+                    </div>
+                    <div className="text-[5px] md:text-[7px] font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
+                  </div>
+                </div>
+              )}
+              {selectedLabel === "Rsg-Sun" && (
+                <div className="absolute top-0 w-full h-full flex flex-col items-center">
+                  <div className="absolute top-0 w-full h-full opacity-[0.18]" style={{ background: "repeating-conic-gradient(from 270deg, #3f2b1d 0deg 7.5deg, transparent 7.5deg 20deg)", maskImage: "linear-gradient(to bottom, black 50%, transparent 55%)" }} />
+                  <div className="absolute top-[5%] w-[84%] h-[38%] rounded-t-full border-[1px] border-[#3f2b1d]/60 flex flex-col items-center pt-1 text-[#3f2b1d]">
+                      <div className="text-[4px] md:text-[5px] font-bold tracking-[0.3em] leading-none">RISING</div>
+                      <div className="text-[18px] md:text-[22px] font-black italic tracking-tighter leading-[0.8] mt-0.5">SUN</div>
+                  </div>
+                  <div className="absolute top-[42%] text-[3.5px] md:text-[4px] font-black tracking-[0.2em] text-[#3f2b1d]">RECORDING COMPANY</div>
+                </div>
+              )}
             </div>
+
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
               <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: '6px' }}>{songTitle}</div>
               <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
             </div>
+            <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 z-20" />
           </div>
         </div>
 
