@@ -1,13 +1,12 @@
 /**
- * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.6)
- * Fix: Stripe Integration with Security Policy (CSP)
- * Integration: Public Key & Price ID included
+ * Project: Vintage Vinyl Player - Golden Era Edition (v2.4.7)
+ * Fix: Explicit CSP meta tag for Stripe execution
  */
 
 import React, { useEffect, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 
-// 鈴木さんの公開可能キーを反映済み
+// 公開可能キー
 const stripePromise = loadStripe("pk_live_51TOrvdDnNK2gZIdwXeJmjYTBMGrDPDWA2HBkJZPJ1Mfa7cKC0GCUgY07oCYWUYxtZL20xX4MuzKlOjnxizPJDm2x00Q66qiEnh");
 
 export default function App() {
@@ -37,12 +36,10 @@ export default function App() {
     "Rsg-Sun": { color: "#facc15", textColor: "#3f2b1d", subText: "MEMPHIS, TENNESSEE" },
   };
 
-  // 投げ銭処理（Stripeの門を開くための修正版）
   const handleDonation = async () => {
     try {
       const stripe = await stripePromise;
       if (!stripe) return;
-
       await stripe.redirectToCheckout({
         lineItems: [{ price: "price_1TSmnDDnNK2gZIdwB9b2ldc0", quantity: 1 }],
         mode: "payment",
@@ -50,7 +47,7 @@ export default function App() {
         cancelUrl: window.location.origin,
       });
     } catch (err) {
-      console.error("Checkout failed:", err);
+      console.error("Stripe Error:", err);
     }
   };
 
@@ -92,129 +89,125 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
-      
-      {/* 門（セキュリティ）を開けるための設定 */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @meta { content-security-policy: "script-src 'self' https://js.stripe.com 'unsafe-inline';"; }
-      `}} />
+    <>
+      {/* 🛡️ 重要：Stripeの動作を許可するセキュリティ設定 */}
+      <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://js.stripe.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; connect-src 'self' https://api.stripe.com;" />
 
-      {/* Vinyl Player Body */}
-      <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] md:shadow-[0_45px_100px_rgba(0,0,0,0.4)] mt-4 mb-8 border border-white/5 overflow-visible">
-        <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
-          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
-          <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10 transition-opacity" 
-               style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
-          
-          <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] md:shadow-[inset_0_0_12px_rgba(0,0,0,0.75)] border-t border-white/10 overflow-hidden"
-            style={{ backgroundColor: labelStyles[selectedLabel].color }}>
-            
-            <div className="absolute inset-0 pointer-events-none">
-              {selectedLabel === "2120" && (
-                <div className="absolute top-0 w-full h-full">
-                  <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
-                  <div className="absolute top-0 w-full h-[52%] flex flex-col items-center justify-end pb-[8%] z-10 text-white">
-                      <span className="text-[10px] md:text-[12px] mb-0.5">♛</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[14px] md:text-[16px]">†</span>
-                        <div className="flex flex-col items-center">
-                          <div className="text-[16px] md:text-[18px] font-black tracking-tighter leading-none">2120</div>
-                          <div className="text-[3px] md:text-[3.5px] font-bold tracking-[0.15em] mt-0.5 uppercase opacity-90">RECORD CORP.</div>
-                        </div>
-                        <span className="text-[14px] md:text-[16px]">♘</span>
-                      </div>
-                  </div>
-                </div>
-              )}
-              {selectedLabel === "Red-Chkr" && (
-                <div className="absolute top-0 w-full h-full">
-                  <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
-                    style={{ backgroundImage: `linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)`, backgroundSize: '12px 12px', borderRadius: '50% 50% 0 0' }} 
-                  />
-                  <div className="absolute top-[14%] w-full text-center text-white font-serif italic font-black text-[11px] md:text-[13px] tracking-tighter scale-y-125">Red Checker</div>
-                  <div className="absolute w-full text-center text-white text-[2.5px] md:text-[2.8px] font-bold tracking-[0.25em]" style={{ top: "42%" }}>RECORDING CO.</div>
-                </div>
-              )}
-              {selectedLabel === "Vee-Jay" && (
-                <div className="absolute top-0 w-full h-full flex flex-col items-center">
-                  <div className="absolute inset-[5%] rounded-full border border-white/30" />
-                  <div className="absolute top-[7%] flex flex-col items-center">
-                    <div className="w-7 h-6 md:w-10 md:h-8 border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden">
-                      <span className="text-white text-[11px] md:text-[13px] font-black italic tracking-tighter leading-none">DDM</span>
-                    </div>
-                    <div className="text-[5px] md:text-[7px] font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
-                  </div>
-                </div>
-              )}
-              {selectedLabel === "Rsg-Sun" && (
-                <div className="absolute top-0 w-full h-full flex flex-col items-center">
-                  <div className="absolute top-0 w-full h-full opacity-[0.18]" style={{ background: "repeating-conic-gradient(from 270deg, #3f2b1d 0deg 7.5deg, transparent 7.5deg 20deg)", maskImage: "linear-gradient(to bottom, black 50%, transparent 55%)" }} />
-                  <div className="absolute top-[5%] w-[84%] h-[38%] rounded-t-full border-[1px] border-[#3f2b1d]/60 flex flex-col items-center pt-1 text-[#3f2b1d]">
-                      <div className="text-[4px] md:text-[5px] font-bold tracking-[0.3em] leading-none">RISING</div>
-                      <div className="text-[18px] md:text-[22px] font-black italic tracking-tighter leading-[0.8] mt-0.5">SUN</div>
-                      <svg viewBox="0 0 100 100" className="w-4 h-4 mt-0.5 opacity-80" fill="currentColor">
-                        <path d="M50 15c-3 0-6 2-7 5-2 0-4 1-5 3-2 0-3 2-3 4s1 4 3 4c1 4 5 7 9 7h6c4 0 8-3 9-7 2 0 3-2 3-4s-1-4-3-4c-1-2-3-3-5-3-1-3-4-5-7-5zM45 40l-5 15h20l-5-15h-10z" />
-                      </svg>
-                  </div>
-                  <div className="absolute top-[42%] text-[3.5px] md:text-[4px] font-black tracking-[0.2em] text-[#3f2b1d]">RECORDING COMPANY</div>
-                </div>
-              )}
-            </div>
-
-            <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
-              <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: '6px' }}>{songTitle}</div>
-              <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
-              <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 border border-zinc-700 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
-        <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
-          style={{ top: "10.5%", right: "10.5%", width: "75%", height: "8px", transformOrigin: "center right", transform: `rotate(${isPlaying ? -81 : -90}deg)` }}>
-          <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full" />
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-5 md:w-16 md:h-8 bg-zinc-950 rounded-sm shadow-xl border-r border-zinc-800" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }} />
-        </div>
-      </div>
-
-      {/* Control Panel */}
-      <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
-        <div className="flex justify-center">
-          <button onClick={togglePlay} className={`w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
-            {isPlaying ? "STOP" : "PLAY"}
-          </button>
-        </div>
+      <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
         
-        <div className="grid grid-cols-2 gap-2">
-          {Object.keys(labelStyles).map((style) => (
-            <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:border-zinc-500'}`}>
-              <span className="opacity-50 text-[6px] mb-0.5">Parody of</span>
-              {style === "2120" ? "2120" : style === "Red-Chkr" ? "RED CHECKER" : style === "Vee-Jay" ? "DDM" : "RISING SUN"}
-            </button>
-          ))}
-        </div>
-
-        <div className="space-y-2 pt-2 border-t border-white/5">
-          <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
-          <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
-          
-          <div className="flex gap-2">
-            <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
-              LOAD MUSIC
-              <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
-            </label>
+        {/* Vinyl Player Body */}
+        <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] md:shadow-[0_45px_100px_rgba(0,0,0,0.4)] mt-4 mb-8 border border-white/5 overflow-visible">
+          <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
+            style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
+            <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10 transition-opacity" 
+                 style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
             
-            <button onClick={handleDonation} className="flex-1 h-12 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center text-amber-500 transition-all active:scale-95">
-              <span className="text-[9px] font-black tracking-widest">TIP 100 JPY</span>
-              <span className="text-[7px] opacity-70">缶コーヒーをおごる</span>
-            </button>
+            <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] md:shadow-[inset_0_0_12px_rgba(0,0,0,0.75)] border-t border-white/10 overflow-hidden"
+              style={{ backgroundColor: labelStyles[selectedLabel].color }}>
+              
+              <div className="absolute inset-0 pointer-events-none">
+                {selectedLabel === "2120" && (
+                  <div className="absolute top-0 w-full h-full">
+                    <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
+                    <div className="absolute top-0 w-full h-[52%] flex flex-col items-center justify-end pb-[8%] z-10 text-white">
+                        <span className="text-[10px] md:text-[12px] mb-0.5">♛</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[14px] md:text-[16px]">†</span>
+                          <div className="flex flex-col items-center">
+                            <div className="text-[16px] md:text-[18px] font-black tracking-tighter leading-none">2120</div>
+                            <div className="text-[3px] md:text-[3.5px] font-bold tracking-[0.15em] mt-0.5 uppercase opacity-90">RECORD CORP.</div>
+                          </div>
+                          <span className="text-[14px] md:text-[16px]">♘</span>
+                        </div>
+                    </div>
+                  </div>
+                )}
+                {selectedLabel === "Red-Chkr" && (
+                  <div className="absolute top-0 w-full h-full">
+                    <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
+                      style={{ backgroundImage: `linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)`, backgroundSize: '12px 12px', borderRadius: '50% 50% 0 0' }} 
+                    />
+                    <div className="absolute top-[14%] w-full text-center text-white font-serif italic font-black text-[11px] md:text-[13px] tracking-tighter scale-y-125">Red Checker</div>
+                    <div className="absolute w-full text-center text-white text-[2.5px] md:text-[2.8px] font-bold tracking-[0.25em]" style={{ top: "42%" }}>RECORDING CO.</div>
+                  </div>
+                )}
+                {selectedLabel === "Vee-Jay" && (
+                  <div className="absolute top-0 w-full h-full flex flex-col items-center">
+                    <div className="absolute inset-[5%] rounded-full border border-white/30" />
+                    <div className="absolute top-[7%] flex flex-col items-center">
+                      <div className="w-7 h-6 md:w-10 md:h-8 border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden">
+                        <span className="text-white text-[11px] md:text-[13px] font-black italic tracking-tighter leading-none">DDM</span>
+                      </div>
+                      <div className="text-[5px] md:text-[7px] font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
+                    </div>
+                  </div>
+                )}
+                {selectedLabel === "Rsg-Sun" && (
+                  <div className="absolute top-0 w-full h-full flex flex-col items-center">
+                    <div className="absolute top-0 w-full h-full opacity-[0.18]" style={{ background: "repeating-conic-gradient(from 270deg, #3f2b1d 0deg 7.5deg, transparent 7.5deg 20deg)", maskImage: "linear-gradient(to bottom, black 50%, transparent 55%)" }} />
+                    <div className="absolute top-[5%] w-[84%] h-[38%] rounded-t-full border-[1px] border-[#3f2b1d]/60 flex flex-col items-center pt-1 text-[#3f2b1d]">
+                        <div className="text-[4px] md:text-[5px] font-bold tracking-[0.3em] leading-none">RISING</div>
+                        <div className="text-[18px] md:text-[22px] font-black italic tracking-tighter leading-[0.8] mt-0.5">SUN</div>
+                        <svg viewBox="0 0 100 100" className="w-4 h-4 mt-0.5 opacity-80" fill="currentColor">
+                          <path d="M50 15c-3 0-6 2-7 5-2 0-4 1-5 3-2 0-3 2-3 4s1 4 3 4c1 4 5 7 9 7h6c4 0 8-3 9-7 2 0 3-2 3-4s-1-4-3-4c-1-2-3-3-5-3-1-3-4-5-7-5zM45 40l-5 15h20l-5-15h-10z" />
+                        </svg>
+                    </div>
+                    <div className="absolute top-[42%] text-[3.5px] md:text-[4px] font-black tracking-[0.2em] text-[#3f2b1d]">RECORDING COMPANY</div>
+                  </div>
+                )}
+              </div>
+
+              <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[14%] px-1">
+                <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: '6px' }}>{songTitle}</div>
+                <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
+                <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
+              </div>
+              <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 z-20" />
+            </div>
+          </div>
+          <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
+          <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
+            style={{ top: "10.5%", right: "10.5%", width: "75%", height: "8px", transformOrigin: "center right", transform: `rotate(${isPlaying ? -81 : -90}deg)` }}>
+            <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full" />
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-5 md:w-16 md:h-8 bg-zinc-950 rounded-sm" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }} />
           </div>
         </div>
-      </div>
 
-      <audio ref={audioRef} key={audioUrl} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
-      <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" />
-      <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" />
-    </div>
+        {/* Control Panel */}
+        <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
+          <div className="flex justify-center">
+            <button onClick={togglePlay} className={`w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
+              {isPlaying ? "STOP" : "PLAY"}
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {Object.keys(labelStyles).map((style) => (
+              <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800'}`}>
+                <span className="opacity-50 text-[6px] mb-0.5">Parody of</span>
+                {style === "2120" ? "2120" : style === "Red-Chkr" ? "RED CHECKER" : style === "Vee-Jay" ? "DDM" : "RISING SUN"}
+              </button>
+            ))}
+          </div>
+          <div className="space-y-2 pt-2 border-t border-white/5">
+            <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
+            <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
+            <div className="flex gap-2">
+              <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
+                LOAD MUSIC
+                <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setAudioUrl(URL.createObjectURL(f)); }} />
+              </label>
+              <button onClick={handleDonation} className="flex-1 h-12 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center text-amber-500 transition-all active:scale-95">
+                <span className="text-[9px] font-black tracking-widest">TIP 100 JPY</span>
+                <span className="text-[7px] opacity-70">缶コーヒーをおごる</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <audio ref={audioRef} key={audioUrl} src={audioUrl ?? undefined} onEnded={() => setIsPlaying(false)} />
+        <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" />
+        <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" />
+      </div>
+    </>
   );
 }
