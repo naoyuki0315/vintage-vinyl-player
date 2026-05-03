@@ -1,13 +1,10 @@
 /**
- * Project: Vintage Vinyl Player (v2.5.7)
- * Fix: Reinforced Stripe redirect & Label design recovery
+ * Project: Vintage Vinyl Player (v2.6.0)
+ * Fix: Standard Stripe Payment Link (2026 Compatible)
+ * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
 import React, { useEffect, useRef, useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-
-// 鈴木さんの本番用キー
-const stripePromise = loadStripe("pk_live_51TOrvdDnNK2gZIdwXeJmjYTBMGrDPDWA2HBkJZPJ1Mfa7cKC0GCUgY07oCYWUYxtZL20xX4MuzKlOjnxizPJDm2x00Q66qiEnh");
 
 export default function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -35,25 +32,17 @@ export default function App() {
     "Rsg-Sun": { color: "#facc15", textColor: "#3f2b1d", subText: "MEMPHIS, TENNESSEE" },
   };
 
-  // 奢るボタン：エラーハンドリングを強化し、ポップアップブロックを回避
-  const handleDonation = async () => {
-    try {
-      const stripe = await stripePromise;
-      if (!stripe) {
-        alert("Stripeの読み込みに失敗しました。ページを再読み込みしてください。");
-        return;
-      }
-      
-      const { error } = await stripe.redirectToCheckout({
-        lineItems: [{ price: "price_1TSmnDDnNK2gZIdwB9b2ldc0", quantity: 1 }],
-        mode: "payment",
-        successUrl: window.location.origin,
-        cancelUrl: window.location.origin,
-      });
-
-      if (error) throw error;
-    } catch (err: any) {
-      alert("Stripeエラー: " + err.message);
+  /**
+   * 💳 投げ銭ボタンの処理 (最新方式)
+   * 43行目付近：この下の "https://buy.stripe.com/..." をあなたのリンクに書き換えてください
+   */
+  const handleDonation = () => {
+    const paymentLink = "https://buy.stripe.com/eVq5kD034glf4eFgWpdIA00"; 
+    
+    if (paymentLink && paymentLink.startsWith("https://buy.stripe.com")) {
+      window.location.href = paymentLink;
+    } else {
+      alert("Stripeの支払いリンクを正しく設定してください。");
     }
   };
 
@@ -93,11 +82,13 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
       
-      {/* Vinyl Shadow Restored */}
+      {/* 影の深さを復元 (0.95) */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
+        
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
+          {/* 光の反射を復元 (0.35) */}
           <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10" 
                style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
           
@@ -105,7 +96,6 @@ export default function App() {
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
             
             <div className="absolute inset-0 pointer-events-none">
-              {/* Labels with fixed layout */}
               {selectedLabel === "2120" && (
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
@@ -159,6 +149,7 @@ export default function App() {
               <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
             </div>
+            <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 z-20" />
           </div>
         </div>
 
