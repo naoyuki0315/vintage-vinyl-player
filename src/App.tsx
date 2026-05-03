@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.1)
- * Fix: Standard Stripe Payment Link & Needle Stop Sound Timing
+ * Project: Vintage Vinyl Player (v2.6.2)
+ * Fix: Needle Drop & Stop Sound Timing (Shortened)
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -69,7 +69,20 @@ export default function App() {
   const togglePlay = () => {
     if (!isPlaying) {
       setIsPlaying(true); 
-      setTimeout(() => { if (sePlayRef.current) { sePlayRef.current.currentTime = 0; sePlayRef.current.play(); } }, 400); 
+      
+      // ★変更箇所：PLAY時の針を落とす音も指定時間でカットする
+      setTimeout(() => { 
+        if (sePlayRef.current) { 
+          sePlayRef.current.currentTime = 0; 
+          sePlayRef.current.play(); 
+          
+          // ここで落とす音の長さを強制カット（現在は300ミリ秒）
+          setTimeout(() => {
+            if (sePlayRef.current) sePlayRef.current.pause();
+          }, 300);
+        } 
+      }, 400); 
+      
       setTimeout(() => { if (audioRef.current) audioRef.current.play(); }, 1000); 
     } else {
       if (audioRef.current) audioRef.current.pause(); 
@@ -77,7 +90,7 @@ export default function App() {
         seStopRef.current.currentTime = 0; 
         seStopRef.current.play(); 
         
-        // ★追加：指定した時間（300ミリ秒）でノイズ音を強制的に止める
+        // ★STOP時のノイズ音を強制的に止める（前回設定した300ミリ秒）
         setTimeout(() => {
           if (seStopRef.current) seStopRef.current.pause();
         }, 300);
