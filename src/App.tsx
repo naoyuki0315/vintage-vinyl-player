@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.9)
- * Fix: Added Audio File Size Limit (20MB) & Strict Audio Type Checking
+ * Project: Vintage Vinyl Player (v2.6.11)
+ * Fix: Allow lightweight videos (<20MB) & Update Alert Message
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -45,7 +45,6 @@ export default function App() {
     }
   };
 
-  // URLが変わるたびにブラウザに強制読み込みさせる
   useEffect(() => {
     if (audioRef.current && audioUrl) {
       audioRef.current.load();
@@ -77,7 +76,6 @@ export default function App() {
     if (!isPlaying) {
       setIsPlaying(true); 
       
-      // 針を落とす音
       setTimeout(() => { 
         if (sePlayRef.current) { 
           sePlayRef.current.currentTime = 0; 
@@ -88,7 +86,6 @@ export default function App() {
         } 
       }, 400); 
       
-      // 音楽の再生
       setTimeout(() => { 
         if (audioRef.current) {
           audioRef.current.currentTime = 0; 
@@ -102,7 +99,6 @@ export default function App() {
         seStopRef.current.currentTime = 0; 
         seStopRef.current.play().catch(()=>{}); 
         
-        // 針を上げる音
         setTimeout(() => {
           if (seStopRef.current) seStopRef.current.pause();
         }, 300);
@@ -111,7 +107,6 @@ export default function App() {
     }
   };
 
-  // レッドチェッカーの時だけダブルクォーテーションを付ける
   const displaySongTitle = selectedLabel === "Red-Chkr" ? `"${songTitle}"` : songTitle;
 
   return (
@@ -213,26 +208,27 @@ export default function App() {
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <div className="flex gap-2">
             
-            {/* ★ 修正：容量・ファイルタイプの制限と、スマホでの録音誘導を追加 */}
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
               LOAD MUSIC
+              {/* ★ video/* も許可に追加しました */}
               <input 
                 type="file" 
-                accept="audio/*" 
+                accept="audio/*, video/*, .m4a, .mp4, .mov" 
                 className="hidden" 
                 onChange={(e) => { 
                   const f = e.target.files?.[0]; 
                   if (f) { 
-                    // 容量制限 (20MB)
                     const maxSize = 20 * 1024 * 1024;
                     if (f.size > maxSize) {
-                      alert("ファイルが大きすぎます！8分（約20MB）以下の音声を選んでください。");
+                      // ★ アラート文言を変更しました
+                      alert("ファイルが大きすぎます！20MB以下（8分くらいを想定）のファイルを選んでください。");
                       return;
                     }
                     
-                    // 音声ファイルチェック
-                    if (!f.type.startsWith('audio/')) {
-                      alert("音声ファイルのみセット可能です！");
+                    // 音声か動画のファイルならOKとする
+                    const isMedia = f.type.startsWith('audio/') || f.type.startsWith('video/') || f.name.toLowerCase().endsWith('.m4a');
+                    if (!isMedia) {
+                      alert("音声または動画ファイルのみセット可能です！");
                       return;
                     }
 
