@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.16)
- * Fix: Separated reflection gradient from the rotating disc to keep light fixed
+ * Project: Vintage Vinyl Player (v2.6.17)
+ * Fix: Hybrid Light Reflection (Fixed environment light + Rotating groove texture)
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -170,10 +170,14 @@ export default function App() {
 
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
         
-        {/* レコード盤面（回転する部分） */}
+        {/* ★ レコード盤面（回転する部分） */}
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
+          {/* ★ 盤面と一緒に回る「溝のムラ・スレ」レイヤー（リアリティの要） */}
+          <div className="absolute inset-0 rounded-full opacity-[0.25] pointer-events-none z-10" 
+               style={{ background: "conic-gradient(from 0deg, rgba(255,255,255,0.1) 0deg, transparent 15deg, rgba(0,0,0,0.4) 45deg, transparent 75deg, rgba(255,255,255,0.1) 120deg, transparent 150deg, rgba(0,0,0,0.4) 220deg, transparent 260deg, rgba(255,255,255,0.1) 320deg, transparent 360deg)" }} />
+
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
             
@@ -235,9 +239,9 @@ export default function App() {
           </div>
         </div>
 
-        {/* ★ 反射光（レコードと一緒に回らないように独立させました） */}
-        <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10" 
-             style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
+        {/* ★ 固定された環境光・ハイライト（光源をシミュレート） */}
+        <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.25] md:opacity-[0.15] pointer-events-none z-20" 
+             style={{ background: "conic-gradient(from 150deg, transparent 0deg, rgba(255,255,255,0.3) 30deg, transparent 60deg, transparent 180deg, rgba(255,255,255,0.3) 210deg, transparent 240deg)" }} />
 
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
