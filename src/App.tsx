@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.13)
- * Feature: Moved Help Button next to PLAY & Updated Font
+ * Project: Vintage Vinyl Player (v2.6.14 - FINAL)
+ * Fix: Restored .mp3 and .wav selection for iOS
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -106,7 +106,6 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10 relative">
       
-      {/* ★ ヘルプポップアップ画面（ボタンが押された時だけ表示） */}
       {showHelp && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-zinc-900 border border-zinc-700 rounded-[30px] p-6 w-full max-w-md max-h-[85vh] overflow-y-auto relative shadow-2xl">
@@ -161,7 +160,6 @@ export default function App() {
         </div>
       )}
 
-      {/* レコード盤面 */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
         
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
@@ -239,16 +237,13 @@ export default function App() {
         </div>
       </div>
 
-      {/* 操作パネル全体 */}
       <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
         
-        {/* ★ PLAYボタンとヘルプボタンを横並びに配置 */}
         <div className="relative flex justify-center items-center h-16">
           <button onClick={togglePlay} className={`absolute z-10 w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest shadow-lg ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
             {isPlaying ? "STOP" : "PLAY"}
           </button>
           
-          {/* 新しい位置に移動したヘルプボタン（太くて分かりやすいゴシック体） */}
           <button 
             onClick={() => setShowHelp(true)} 
             className="absolute right-2 md:right-4 w-10 h-10 md:w-11 md:h-11 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-md"
@@ -273,9 +268,10 @@ export default function App() {
             
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl hover:bg-zinc-700 transition-colors">
               LOAD MUSIC
+              {/* ★ .mp3 と .wav をリストに復活させました！ */}
               <input 
                 type="file" 
-                accept="audio/*, video/*, .m4a, .mp4, .mov" 
+                accept="audio/*, video/*, .mp3, .wav, .m4a, .mp4, .mov" 
                 className="hidden" 
                 onChange={(e) => { 
                   const f = e.target.files?.[0]; 
