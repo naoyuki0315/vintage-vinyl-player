@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.12)
- * Feature: Added In-App Help Modal (HOW TO PLAY)
+ * Project: Vintage Vinyl Player (v2.6.13)
+ * Feature: Moved Help Button next to PLAY & Updated Font
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -21,7 +21,6 @@ export default function App() {
   const [songTitle, setSongTitle] = useState("MY BABE");
   const [selectedLabel, setSelectedLabel] = useState("2120");
   
-  // ★ 新しい状態：ポップアップを開閉するためのスイッチ
   const [showHelp, setShowHelp] = useState(false);
 
   const TARGET_RPM = 12.0; 
@@ -107,20 +106,10 @@ export default function App() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10 relative">
       
-      {/* ★ ヘルプボタン（画面右上） */}
-      <button 
-        onClick={() => setShowHelp(true)} 
-        className="fixed top-4 right-4 w-10 h-10 bg-zinc-800/80 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-zinc-700 transition-all z-50 shadow-xl"
-        aria-label="使い方を開く"
-      >
-        <span className="text-lg font-black font-serif italic">?</span>
-      </button>
-
-      {/* ★ ヘルプポップアップ画面 */}
+      {/* ★ ヘルプポップアップ画面（ボタンが押された時だけ表示） */}
       {showHelp && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-zinc-900 border border-zinc-700 rounded-[30px] p-6 w-full max-w-md max-h-[85vh] overflow-y-auto relative shadow-2xl">
-            {/* 閉じるボタン（×） */}
             <button 
               onClick={() => setShowHelp(false)} 
               className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all"
@@ -172,7 +161,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 以下、従来のプレイヤーUI部分 */}
+      {/* レコード盤面 */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
         
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
@@ -250,12 +239,25 @@ export default function App() {
         </div>
       </div>
 
+      {/* 操作パネル全体 */}
       <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
-        <div className="flex justify-center">
-          <button onClick={togglePlay} className={`w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
+        
+        {/* ★ PLAYボタンとヘルプボタンを横並びに配置 */}
+        <div className="relative flex justify-center items-center h-16">
+          <button onClick={togglePlay} className={`absolute z-10 w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest shadow-lg ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
             {isPlaying ? "STOP" : "PLAY"}
           </button>
+          
+          {/* 新しい位置に移動したヘルプボタン（太くて分かりやすいゴシック体） */}
+          <button 
+            onClick={() => setShowHelp(true)} 
+            className="absolute right-2 md:right-4 w-10 h-10 md:w-11 md:h-11 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-md"
+            aria-label="使い方を開く"
+          >
+            <span className="text-base md:text-lg font-black font-sans">？</span>
+          </button>
         </div>
+
         <div className="grid grid-cols-2 gap-2">
           {Object.keys(labelStyles).map((style) => (
             <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800'}`}>
