@@ -1,50 +1,33 @@
-# React + TypeScript + Vite
+📻 Vintage Vinyl Player 使い方ガイド
+スマホやPCのブラウザで、レコード特有の「針を落とす音」や「ノイズ感」を味わいながら音楽を楽しめるWebプレイヤーです。
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🎵 基本的な遊び方
+PLAY / STOP
+中央のボタンでレコードの再生・停止を操作します。レコードならではの「チッ」という針の音から音楽がスタートします。
 
-Currently, two official plugins are available:
+レーベル変更
+画面下の4つのボタンから、お好みのヴィンテージ・レーベル（2120、RED CHECKERなど）に盤面のデザインを着せ替えることができます。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🎧 自分の曲をセットする（LOAD MUSIC）
+お手持ちの音楽データや動画を、このレコードプレイヤーで再生することができます。バンドのデモ音源や好きな曲をセットして、アナログ盤の気分を味わってみてください。
 
-## Expanding the ESLint configuration
+「LOAD MUSIC」 ボタンを押します。
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+スマホやPCの中から、再生したいファイルを選びます。
 
-- Configure the top-level `parserOptions` property like this:
+⚠️ アップロード時のご注意（制限について）
+スマホのブラウザが重くなってフリーズするのを防ぐため、ファイルの容量に【20MBまで】の制限を設けています。
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+🎵 音声ファイル（mp3, wav, m4a等）の場合
+約8分〜10分程度の曲をアップロードできます。
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+🎬 動画ファイル（mp4, mov等）の場合
+映像データは非常に重いため、20MBだと「数十秒〜長くても1分程度」の短い動画に限られます。長時間のライブ動画などはエラーになりますのでご注意ください。
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+💡 ※裏技（動画の音声再生）※
+短い動画ファイルをセットした場合、映像は表示されず「音声トラックのみ」が抽出されてレコードから流れます。手元にあるライブのワンシーンなど、音だけをアナログ気分で聴きたい時に最適です！
+（※アップロードしたデータはあなたのスマホ/PC内でのみ処理され、外部サーバーには保存されませんのでご安心ください）
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+☕️ 開発者に缶コーヒーをおごる（投げ銭）
+もしこのプレイヤーを気に入っていただけたら、右下の 「TIP 100 JPY」 ボタンから開発者を応援できます！
+いただいた100円は、深夜のコーディング作業の「缶コーヒー代」として、ありがたくブルースの糧にさせていただきます。（※決済には安全なStripeを使用しています）

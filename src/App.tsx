@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.11)
- * Fix: Allow lightweight videos (<20MB) & Update Alert Message
+ * Project: Vintage Vinyl Player (v2.6.12)
+ * Feature: Added In-App Help Modal (HOW TO PLAY)
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -20,6 +20,9 @@ export default function App() {
   const [bandName, setBandName] = useState("DROP DOWN MAMA");
   const [songTitle, setSongTitle] = useState("MY BABE");
   const [selectedLabel, setSelectedLabel] = useState("2120");
+  
+  // ★ 新しい状態：ポップアップを開閉するためのスイッチ
+  const [showHelp, setShowHelp] = useState(false);
 
   const TARGET_RPM = 12.0; 
   const TARGET_DEG_PER_SEC = (TARGET_RPM * 360) / 60;
@@ -32,12 +35,8 @@ export default function App() {
     "Rsg-Sun": { color: "#facc15", textColor: "#3f2b1d", subText: "MEMPHIS, TENNESSEE" },
   };
 
-  /**
-   * 💳 投げ銭ボタンの処理
-   */
   const handleDonation = () => {
     const paymentLink = "https://buy.stripe.com/eVq5kD034glf4eFgWpdIA00"; 
-    
     if (paymentLink && paymentLink.startsWith("https://buy.stripe.com")) {
       window.location.href = paymentLink;
     } else {
@@ -75,7 +74,6 @@ export default function App() {
   const togglePlay = () => {
     if (!isPlaying) {
       setIsPlaying(true); 
-      
       setTimeout(() => { 
         if (sePlayRef.current) { 
           sePlayRef.current.currentTime = 0; 
@@ -85,20 +83,17 @@ export default function App() {
           }, 300);
         } 
       }, 400); 
-      
       setTimeout(() => { 
         if (audioRef.current) {
           audioRef.current.currentTime = 0; 
           audioRef.current.play().catch(e => console.log("Play error:", e)); 
         }
       }, 1000); 
-
     } else {
       if (audioRef.current) audioRef.current.pause(); 
       if (seStopRef.current) { 
         seStopRef.current.currentTime = 0; 
         seStopRef.current.play().catch(()=>{}); 
-        
         setTimeout(() => {
           if (seStopRef.current) seStopRef.current.pause();
         }, 300);
@@ -110,8 +105,74 @@ export default function App() {
   const displaySongTitle = selectedLabel === "Red-Chkr" ? `"${songTitle}"` : songTitle;
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10">
+    <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10 relative">
       
+      {/* ★ ヘルプボタン（画面右上） */}
+      <button 
+        onClick={() => setShowHelp(true)} 
+        className="fixed top-4 right-4 w-10 h-10 bg-zinc-800/80 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-zinc-700 transition-all z-50 shadow-xl"
+        aria-label="使い方を開く"
+      >
+        <span className="text-lg font-black font-serif italic">?</span>
+      </button>
+
+      {/* ★ ヘルプポップアップ画面 */}
+      {showHelp && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-[30px] p-6 w-full max-w-md max-h-[85vh] overflow-y-auto relative shadow-2xl">
+            {/* 閉じるボタン（×） */}
+            <button 
+              onClick={() => setShowHelp(false)} 
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all"
+            >
+              ✕
+            </button>
+            
+            <h2 className="text-lg md:text-xl font-black text-white mb-5 tracking-tight flex items-center gap-2">
+              <span>📻</span> 使い方ガイド
+            </h2>
+            
+            <div className="space-y-5 text-[11px] md:text-xs leading-relaxed text-zinc-300">
+              
+              <div>
+                <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">🎵 基本的な遊び方</h3>
+                <ul className="list-disc pl-4 space-y-1">
+                  <li><strong className="text-zinc-100">PLAY / STOP:</strong> 中央のボタンでレコードの再生・停止を操作します。</li>
+                  <li><strong className="text-zinc-100">レーベル変更:</strong> 画面下の4つのボタンから盤面のデザインを着せ替えます。</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">🎧 自分の曲をセットする</h3>
+                <p className="mb-3">「LOAD MUSIC」ボタンから、スマホやPC内の音楽・動画ファイルを選べます。</p>
+                <div className="bg-red-500/10 border border-red-500/20 p-3 md:p-4 rounded-2xl text-red-200 shadow-inner">
+                  <strong className="text-red-400 block mb-2 text-sm">⚠️ アップロード時のご注意</strong>
+                  <p className="mb-2">ブラウザがフリーズするのを防ぐため、ファイルの容量に<strong className="text-white">【20MBまで】</strong>の制限を設けています。</p>
+                  <ul className="list-disc pl-4 space-y-1.5 mt-2">
+                    <li><strong className="text-red-300">音声ファイル（mp3, m4a等）:</strong><br/>約8分〜10分程度の曲をセットできます。</li>
+                    <li><strong className="text-red-300">動画ファイル（mp4, mov等）:</strong><br/>映像データは重いため、数十秒〜1分程度に限られます。※映像は出ず<strong className="text-white">「音声のみ」</strong>が抽出されて流れます。</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">☕️ 開発者を応援する</h3>
+                <p>気に入っていただけたら、「TIP 100 JPY」ボタンから缶コーヒー代の投げ銭（100円）をお待ちしています！深夜のブルースの糧になります。</p>
+              </div>
+
+            </div>
+            
+            <button 
+              onClick={() => setShowHelp(false)} 
+              className="mt-7 w-full py-3.5 rounded-xl bg-white text-black font-black text-xs tracking-widest uppercase active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+            >
+              閉じる
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 以下、従来のプレイヤーUI部分 */}
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
         
         <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
@@ -208,9 +269,8 @@ export default function App() {
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <div className="flex gap-2">
             
-            <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl">
+            <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl hover:bg-zinc-700 transition-colors">
               LOAD MUSIC
-              {/* ★ video/* も許可に追加しました */}
               <input 
                 type="file" 
                 accept="audio/*, video/*, .m4a, .mp4, .mov" 
@@ -220,23 +280,18 @@ export default function App() {
                   if (f) { 
                     const maxSize = 20 * 1024 * 1024;
                     if (f.size > maxSize) {
-                      // ★ アラート文言を変更しました
                       alert("ファイルが大きすぎます！20MB以下（8分くらいを想定）のファイルを選んでください。");
                       return;
                     }
-                    
-                    // 音声か動画のファイルならOKとする
                     const isMedia = f.type.startsWith('audio/') || f.type.startsWith('video/') || f.name.toLowerCase().endsWith('.m4a');
                     if (!isMedia) {
                       alert("音声または動画ファイルのみセット可能です！");
                       return;
                     }
-
                     if (isPlaying) {
                       setIsPlaying(false);
                       if (audioRef.current) audioRef.current.pause();
                     }
-                    
                     const newUrl = URL.createObjectURL(f);
                     setAudioUrl(newUrl); 
                     setSongTitle(f.name.replace(/\.[^/.]+$/, "").toUpperCase()); 
