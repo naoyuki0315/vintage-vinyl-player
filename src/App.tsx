@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.20)
- * Fix: Masked fixed light on label, added tone arm drop-shadow, added fixed metal spindle
+ * Project: Vintage Vinyl Player (v2.6.21)
+ * Fix: Corrected mask radius for label, adjusted fixed light intensity (80%) and width
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -174,12 +174,12 @@ export default function App() {
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
-          {/* ★ 盤面と一緒に回る「溝のムラ・スレ」レイヤー（全体を弱め、中央のラベル部分はマスクでさらに弱く） */}
+          {/* ★ 盤面と一緒に回る「溝のムラ・スレ」レイヤー（半径を18.75%に修正） */}
           <div className="absolute inset-0 rounded-full opacity-[0.20] pointer-events-none z-10" 
                style={{ 
                  background: "conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.15) 15deg, rgba(0,0,0,0.5) 35deg, transparent 60deg, rgba(255,255,255,0.05) 85deg, rgba(0,0,0,0.4) 110deg, transparent 140deg, rgba(255,255,255,0.1) 170deg, rgba(0,0,0,0.6) 200deg, transparent 230deg, rgba(255,255,255,0.15) 260deg, rgba(0,0,0,0.5) 290deg, transparent 320deg, rgba(255,255,255,0.05) 340deg, transparent 360deg)",
-                 WebkitMaskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 37.5%, black 38%)",
-                 maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 37.5%, black 38%)"
+                 WebkitMaskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 18.5%, black 19%)",
+                 maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 18.5%, black 19%)"
                }} />
 
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] border-t border-white/10 overflow-hidden"
@@ -245,12 +245,12 @@ export default function App() {
           </div>
         </div>
 
-        {/* ★ 1の光：固定された環境光・ハイライト（ラベル部分をマスクして薄くしました） */}
-        <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.5] md:opacity-[0.35] pointer-events-none z-20" 
+        {/* ★ 1の光：固定された環境光・ハイライト（濃さを80%にし、幅を少し絞り、マスク半径を正しく修正） */}
+        <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.6] md:opacity-[0.5] pointer-events-none z-20" 
              style={{ 
-               background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.6) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.6) 225deg, transparent 270deg)",
-               WebkitMaskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 37.5%, black 38%)",
-               maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 37.5%, black 38%)"
+               background: "conic-gradient(from 0deg, transparent 9deg, rgba(255,255,255,0.8) 45deg, transparent 81deg, transparent 189deg, rgba(255,255,255,0.8) 225deg, transparent 261deg)",
+               WebkitMaskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 18.5%, black 19%)",
+               maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 18.5%, black 19%)"
              }} />
 
         {/* ★ スピンドル（プレイヤーの金属の軸）：回転しないように外側に配置 */}
