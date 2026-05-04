@@ -174,12 +174,12 @@ export default function App() {
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
-          {/* ★ 盤面と一緒に回る「溝のムラ・スレ」レイヤー（半径を18.75%に正確に修正） */}
+          {/* ★ 盤面と一緒に回る「溝のムラ・スレ」レイヤー（マスク半径を1.3倍の24.4%に拡大） */}
           <div className="absolute inset-0 rounded-full opacity-[0.20] pointer-events-none z-10" 
                style={{ 
                  background: "conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.15) 15deg, rgba(0,0,0,0.5) 35deg, transparent 60deg, rgba(255,255,255,0.05) 85deg, rgba(0,0,0,0.4) 110deg, transparent 140deg, rgba(255,255,255,0.1) 170deg, rgba(0,0,0,0.6) 200deg, transparent 230deg, rgba(255,255,255,0.15) 260deg, rgba(0,0,0,0.5) 290deg, transparent 320deg, rgba(255,255,255,0.05) 340deg, transparent 360deg)",
-                 WebkitMaskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 18.75%, black 18.8%)",
-                 maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 18.75%, black 18.8%)"
+                 WebkitMaskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 24.3%, black 24.4%)",
+                 maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 24.3%, black 24.4%)"
                }} />
 
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] border-t border-white/10 overflow-hidden"
@@ -245,12 +245,12 @@ export default function App() {
           </div>
         </div>
 
-        {/* ★ 1の光：固定された環境光・ハイライト（アルファ値を1にし、全体の透明度を上げて約1.5倍の強烈な光に） */}
-        <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.9] md:opacity-[0.8] pointer-events-none z-20" 
+        {/* ★ 1の光：固定された環境光・ハイライト（強さを半分に落とし、マスク半径を1.3倍に拡大） */}
+        <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.45] md:opacity-[0.4] pointer-events-none z-20" 
              style={{ 
-               background: "conic-gradient(from 0deg, transparent 9deg, rgba(255,255,255,1) 45deg, transparent 81deg, transparent 189deg, rgba(255,255,255,1) 225deg, transparent 261deg)",
-               WebkitMaskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 18.75%, black 18.8%)",
-               maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 18.75%, black 18.8%)"
+               background: "conic-gradient(from 0deg, transparent 9deg, rgba(255,255,255,0.5) 45deg, transparent 81deg, transparent 189deg, rgba(255,255,255,0.5) 225deg, transparent 261deg)",
+               WebkitMaskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 24.3%, black 24.4%)",
+               maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 24.3%, black 24.4%)"
              }} />
 
         {/* ★ スピンドル（プレイヤーの金属の軸）：回転しないように外側に配置 */}
