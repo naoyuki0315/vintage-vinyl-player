@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.19)
- * Fix: Adjusted light intensity (stronger fixed light, softer rotating texture, masked label area)
+ * Project: Vintage Vinyl Player (v2.6.20)
+ * Fix: Masked fixed light on label, added tone arm drop-shadow, added fixed metal spindle
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -239,17 +239,33 @@ export default function App() {
               <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: getDynamicFontSize(bandName, 5.2) }}>{bandName}</div>
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
             </div>
-            <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 z-20" />
+            
+            {/* レコード中心の穴 */}
+            <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 z-20 shadow-[inset_0_1px_3px_rgba(0,0,0,0.8)]" />
           </div>
         </div>
 
-        {/* ★ 1の光：固定された環境光・ハイライト（少し強く調整しました） */}
+        {/* ★ 1の光：固定された環境光・ハイライト（ラベル部分をマスクして薄くしました） */}
         <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.5] md:opacity-[0.35] pointer-events-none z-20" 
-             style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.6) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.6) 225deg, transparent 270deg)" }} />
+             style={{ 
+               background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.6) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.6) 225deg, transparent 270deg)",
+               WebkitMaskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 37.5%, black 38%)",
+               maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 37.5%, black 38%)"
+             }} />
+
+        {/* ★ スピンドル（プレイヤーの金属の軸）：回転しないように外側に配置 */}
+        <div className="absolute w-[1.1%] h-[1.1%] rounded-full bg-gradient-to-br from-zinc-200 to-zinc-500 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.8)] pointer-events-none" />
 
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
+        
+        {/* ★ アーム：ドロップシャドウ（落ち影）を追加して立体感をアップ */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
-          style={{ top: "10.5%", right: "10.5%", width: "75%", height: "8px", transformOrigin: "center right", transform: `rotate(${isPlaying ? -81 : -90}deg)` }}>
+          style={{ 
+            top: "10.5%", right: "10.5%", width: "75%", height: "8px", 
+            transformOrigin: "center right", 
+            transform: `rotate(${isPlaying ? -81 : -90}deg)`,
+            filter: "drop-shadow(-8px 12px 6px rgba(0,0,0,0.6))"
+          }}>
           <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full" />
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-5 md:w-16 md:h-8 bg-zinc-950 rounded-sm" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }} />
         </div>
