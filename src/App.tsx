@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.14 - FINAL)
- * Fix: Restored .mp3 and .wav selection for iOS
+ * Project: Vintage Vinyl Player (v2.6.15)
+ * Fix: Dynamic font size for long song/band names to prevent overflow
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -102,6 +102,15 @@ export default function App() {
   };
 
   const displaySongTitle = selectedLabel === "Red-Chkr" ? `"${songTitle}"` : songTitle;
+
+  // ★ 曲名やバンド名が長い場合に、文字数に応じてフォントサイズを動的に小さくする関数
+  const getDynamicFontSize = (text: string, baseSize: number) => {
+    const len = text.length;
+    if (len <= 10) return `${baseSize}px`; // 10文字までは標準サイズ
+    if (len <= 15) return `${baseSize * 0.85}px`; // 11〜15文字は少し小さく
+    if (len <= 20) return `${baseSize * 0.7}px`; // 16〜20文字はさらに小さく
+    return `${baseSize * 0.55}px`; // 21文字以上は最小サイズ
+  };
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10 relative">
@@ -221,8 +230,9 @@ export default function App() {
             </div>
 
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[16%] px-1">
-              <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: '6px' }}>{displaySongTitle}</div>
-              <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: '5.2px' }}>{bandName}</div>
+              {/* ★ getDynamicFontSizeを使って、文字数でフォントサイズを変化させます */}
+              <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: getDynamicFontSize(displaySongTitle, 6) }}>{displaySongTitle}</div>
+              <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: getDynamicFontSize(bandName, 5.2) }}>{bandName}</div>
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
             </div>
             <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 z-20" />
@@ -268,7 +278,6 @@ export default function App() {
             
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl hover:bg-zinc-700 transition-colors">
               LOAD MUSIC
-              {/* ★ .mp3 と .wav をリストに復活させました！ */}
               <input 
                 type="file" 
                 accept="audio/*, video/*, .mp3, .wav, .m4a, .mp4, .mov" 
