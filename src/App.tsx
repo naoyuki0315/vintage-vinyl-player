@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.22)
- * Fix: Precise mask radius (18.75%), boosted fixed light intensity to max.
+ * Project: Vintage Vinyl Player (v2.6.23)
+ * Fix: Increased spindle size by 1.25x (1.1% -> 1.4%)
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -253,8 +253,8 @@ export default function App() {
                maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 24.3%, black 24.4%)"
              }} />
 
-        {/* ★ スピンドル（プレイヤーの金属の軸）：回転しないように外側に配置 */}
-        <div className="absolute w-[1.1%] h-[1.1%] rounded-full bg-gradient-to-br from-zinc-200 to-zinc-500 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.8)] pointer-events-none" />
+        {/* ★ スピンドル（プレイヤーの金属の軸）：回転しないように外側に配置 (サイズを1.1%から1.4%に拡大) */}
+        <div className="absolute w-[1.4%] h-[1.4%] rounded-full bg-gradient-to-br from-zinc-200 to-zinc-500 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.8)] pointer-events-none" />
 
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
         
