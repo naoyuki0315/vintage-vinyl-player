@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.17)
- * Fix: Hybrid Light Reflection (Fixed environment light + Rotating groove texture)
+ * Project: Vintage Vinyl Player (v2.6.18)
+ * Fix: Adjusted light reflections (Fixed light at 45deg, enhanced mottled texture for rotating groove)
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -174,9 +174,9 @@ export default function App() {
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
-          {/* ★ 盤面と一緒に回る「溝のムラ・スレ」レイヤー（リアリティの要） */}
-          <div className="absolute inset-0 rounded-full opacity-[0.25] pointer-events-none z-10" 
-               style={{ background: "conic-gradient(from 0deg, rgba(255,255,255,0.1) 0deg, transparent 15deg, rgba(0,0,0,0.4) 45deg, transparent 75deg, rgba(255,255,255,0.1) 120deg, transparent 150deg, rgba(0,0,0,0.4) 220deg, transparent 260deg, rgba(255,255,255,0.1) 320deg, transparent 360deg)" }} />
+          {/* ★ 盤面と一緒に回る「溝のムラ・スレ」レイヤー（より細かく、まだらに） */}
+          <div className="absolute inset-0 rounded-full opacity-[0.35] pointer-events-none z-10" 
+               style={{ background: "conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.15) 15deg, rgba(0,0,0,0.5) 35deg, transparent 60deg, rgba(255,255,255,0.05) 85deg, rgba(0,0,0,0.4) 110deg, transparent 140deg, rgba(255,255,255,0.1) 170deg, rgba(0,0,0,0.6) 200deg, transparent 230deg, rgba(255,255,255,0.15) 260deg, rgba(0,0,0,0.5) 290deg, transparent 320deg, rgba(255,255,255,0.05) 340deg, transparent 360deg)" }} />
 
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
@@ -239,9 +239,9 @@ export default function App() {
           </div>
         </div>
 
-        {/* ★ 固定された環境光・ハイライト（光源をシミュレート） */}
-        <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.25] md:opacity-[0.15] pointer-events-none z-20" 
-             style={{ background: "conic-gradient(from 150deg, transparent 0deg, rgba(255,255,255,0.3) 30deg, transparent 60deg, transparent 180deg, rgba(255,255,255,0.3) 210deg, transparent 240deg)" }} />
+        {/* ★ 固定された環境光・ハイライト（右上から左下の斜めの光に戻しました） */}
+        <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.35] md:opacity-[0.2] pointer-events-none z-20" 
+             style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.4) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.4) 225deg, transparent 270deg)" }} />
 
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
