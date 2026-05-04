@@ -1,6 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.15)
- * Fix: Dynamic font size for long song/band names to prevent overflow
+ * Project: Vintage Vinyl Player (v2.6.16)
+ * Fix: Separated reflection gradient from the rotating disc to keep light fixed
  * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
  */
 
@@ -103,13 +103,12 @@ export default function App() {
 
   const displaySongTitle = selectedLabel === "Red-Chkr" ? `"${songTitle}"` : songTitle;
 
-  // ★ 曲名やバンド名が長い場合に、文字数に応じてフォントサイズを動的に小さくする関数
   const getDynamicFontSize = (text: string, baseSize: number) => {
     const len = text.length;
-    if (len <= 10) return `${baseSize}px`; // 10文字までは標準サイズ
-    if (len <= 15) return `${baseSize * 0.85}px`; // 11〜15文字は少し小さく
-    if (len <= 20) return `${baseSize * 0.7}px`; // 16〜20文字はさらに小さく
-    return `${baseSize * 0.55}px`; // 21文字以上は最小サイズ
+    if (len <= 10) return `${baseSize}px`; 
+    if (len <= 15) return `${baseSize * 0.85}px`; 
+    if (len <= 20) return `${baseSize * 0.7}px`; 
+    return `${baseSize * 0.55}px`; 
   };
 
   return (
@@ -171,11 +170,9 @@ export default function App() {
 
       <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
         
-        <div ref={discRef} className="relative w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
+        {/* レコード盤面（回転する部分） */}
+        <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
-          
-          <div className="absolute inset-0 rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10" 
-               style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
           
           <div className="relative w-[37.5%] h-[37.5%] rounded-full flex flex-col items-center justify-center shadow-[inset_0_0_22px_rgba(0,0,0,0.95)] border-t border-white/10 overflow-hidden"
             style={{ backgroundColor: labelStyles[selectedLabel].color }}>
@@ -230,7 +227,6 @@ export default function App() {
             </div>
 
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[16%] px-1">
-              {/* ★ getDynamicFontSizeを使って、文字数でフォントサイズを変化させます */}
               <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: getDynamicFontSize(displaySongTitle, 6) }}>{displaySongTitle}</div>
               <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: getDynamicFontSize(bandName, 5.2) }}>{bandName}</div>
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
@@ -238,6 +234,10 @@ export default function App() {
             <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 z-20" />
           </div>
         </div>
+
+        {/* ★ 反射光（レコードと一緒に回らないように独立させました） */}
+        <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.35] md:opacity-[0.12] pointer-events-none z-10" 
+             style={{ background: "conic-gradient(from 0deg, transparent, rgba(255,255,255,0.45) 45deg, transparent 90deg, transparent 180deg, rgba(255,255,255,0.45) 225deg, transparent 270deg)" }} />
 
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
