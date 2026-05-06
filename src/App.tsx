@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.0.2 - Immersive Perfected)
- * Feature: Restored normal layout, added exclusive landscape layout
- * Fix: Used CSS media queries to completely separate normal and landscape controls
+ * Project: Vintage Vinyl Player (v3.1.0 - Ultimate Immersive & Scalable)
+ * Feature: Responsive landscape layout for Mobile/Tablet/PC, Scalable tone arm
+ * Fix: Removed max-width limits on landscape, changed absolute pixel sizes to percentages for proper scaling.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -119,86 +119,109 @@ export default function App() {
         .immersive-panel {
           transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        /* 縦画面（通常）再生時はパネルを下にフェードアウトさせる */
-        .immersive-panel.playing {
-          opacity: 0;
-          transform: translateY(30px);
-          pointer-events: none;
-        }
-
-        .record-wrapper {
-          transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        /* 縦画面（通常）再生時は少しだけズーム */
-        .record-wrapper.playing {
-          transform: scale(1.05);
-        }
         
-        /* ★ スマホ横画面（ランドスケープ）専用レイアウト（CSSのみで再配置） */
-        @media screen and (max-height: 500px) and (orientation: landscape) {
-          .immersive-panel, .immersive-panel.playing {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            backdrop-filter: none !important;
-            opacity: 1 !important;
-            transform: none !important;
-            position: fixed !important;
-            inset: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            max-width: none !important;
-            z-index: 50 !important;
-            pointer-events: none !important;
-            padding: 0 !important;
+        /* --- 縦画面（Portrait）時の設定 --- */
+        @media (orientation: portrait) {
+          .immersive-panel.playing {
+            opacity: 0;
+            transform: translateY(30px);
+            pointer-events: none;
           }
-          
-          /* ボタン以外のパネル要素を消す */
-          .hide-on-landscape {
-            display: none !important;
+          .record-wrapper {
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
           }
+          .record-wrapper.playing {
+            transform: scale(1.05);
+          }
+        }
 
-          .btn-container {
-            height: 100% !important;
-            position: relative;
-          }
-
-          /* PLAYボタンを巨大化して左へ */
-          .play-btn {
-            position: fixed !important;
-            left: max(4vw, 20px) !important;
-            right: auto !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            width: 80px !important;
-            height: 80px !important;
-            font-size: 14px !important;
-            pointer-events: auto !important;
-          }
-
-          /* ？ボタンを右へ */
-          .help-btn {
-            position: fixed !important;
-            right: max(4vw, 20px) !important;
-            left: auto !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            width: 56px !important;
-            height: 56px !important;
-            pointer-events: auto !important;
-          }
-
-          /* レコードを画面中央に固定＆ズーム */
+        /* --- 横画面（Landscape）共通：スマホ・タブレット・PC --- */
+        @media (orientation: landscape) {
+          /* 1. レコードのサイズ制限を解除し、画面の高さに合わせて巨大化（PCで約3倍に！） */
           .record-wrapper {
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
             margin: 0 !important;
+            width: 90vh !important;
+            height: 90vh !important;
+            max-width: 1400px !important;
+            max-height: 1400px !important;
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .record-wrapper.playing {
+            transform: translate(-50%, -50%) scale(1.05) !important; 
           }
 
-          .record-wrapper.playing {
-            transform: translate(-50%, -50%) scale(1.15) !important; 
+          /* ボタンコンテナの高さを潰してレイアウト崩れを防ぐ */
+          .btn-container {
+            height: 0 !important;
+            position: static !important;
+          }
+
+          /* 2. PLAYボタンを巨大化して画面左へ分離 */
+          .play-btn {
+            position: fixed !important;
+            left: max(3vw, 20px) !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: clamp(70px, 12vh, 120px) !important;
+            height: clamp(70px, 12vh, 120px) !important;
+            font-size: clamp(12px, 2vh, 20px) !important;
+            pointer-events: auto !important;
+            z-index: 100 !important;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6) !important;
+          }
+
+          /* 3. ？ボタンを画面右へ分離 */
+          .help-btn {
+            position: fixed !important;
+            right: max(3vw, 20px) !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: clamp(50px, 8vh, 80px) !important;
+            height: clamp(50px, 8vh, 80px) !important;
+            font-size: clamp(18px, 3vh, 28px) !important;
+            pointer-events: auto !important;
+            z-index: 100 !important;
+          }
+
+          /* 4. メインパネルを右下に小さく固定配置（PC/タブレット用） */
+          .immersive-panel {
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            width: 340px !important;
+            padding: 20px !important;
+            z-index: 90 !important;
+            transform: none !important;
+            opacity: 0.4; /* デフォルトは半透明で邪魔にならないように */
+          }
+          .immersive-panel:hover, .immersive-panel:focus-within {
+            opacity: 1 !important; /* マウスを乗せたらクッキリ見える */
+          }
+          .immersive-panel.playing {
+            opacity: 0.15; /* 再生中はさらに薄くして没入感を高める */
+          }
+        }
+
+        /* --- スマホ横画面（高さが極端に低い場合）の専用処理 --- */
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+          /* 狭い画面ではパネルの中身（ボタン以外）を完全に消す */
+          .hide-on-landscape {
+            display: none !important;
+          }
+          /* パネル自体の背景や枠線も透明にする */
+          .immersive-panel {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            pointer-events: none !important; /* パネル自体はクリック無効に */
+          }
+          .immersive-panel.playing {
+            opacity: 1 !important; /* ボタンが消えないよう透明化を解除 */
           }
         }
       `}</style>
@@ -223,7 +246,7 @@ export default function App() {
                 <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">🎵 基本的な遊び方</h3>
                 <ul className="list-disc pl-4 space-y-1">
                   <li><strong className="text-zinc-100">PLAY / STOP:</strong> レコードの再生・停止を操作します。再生中はレコードがズームして没入モードになります。</li>
-                  <li><strong className="text-zinc-100">スマホ横画面対応:</strong> スマホを横に向けると、パネルが消えて専用のフルスクリーンプレイヤーになります。</li>
+                  <li><strong className="text-zinc-100">マルチデバイス横画面:</strong> スマホ・タブレット・PCで横画面にすると、専用のフルスクリーンプレイヤーになり、レコードが最大化されます。</li>
                 </ul>
               </div>
 
@@ -257,7 +280,7 @@ export default function App() {
         </div>
       )}
 
-      {/* レコード全体（再生中はクラスがついてズームします） */}
+      {/* レコード全体（縦画面時は最大400px、横画面時はCSSの魔法で巨大化します） */}
       <div className={`record-wrapper relative w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible z-10 ${isPlaying ? 'playing' : ''}`}>
         
         {/* レコード盤面 */}
@@ -340,26 +363,29 @@ export default function App() {
                maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 24.3%, black 24.4%)"
              }} />
 
+        {/* ★ スピンドル（巨大化しても太さが維持されるよう % 指定に変更） */}
         <div className="absolute w-[1.4%] h-[1.4%] rounded-full bg-gradient-to-br from-zinc-200 to-zinc-500 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.8)] pointer-events-none" />
 
-        <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
+        {/* ★ アームの軸（% 指定に変更） */}
+        <div className="absolute rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%", width: "9%", height: "9%" }} />
         
+        {/* ★ アーム（巨大化しても形が崩れないよう、完全 % 指定でレスポンシブ対応） */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
-            top: "10.5%", right: "10.5%", width: "75%", height: "8px", 
+            top: "10.5%", right: "10.5%", width: "75%", height: "2%", 
             transformOrigin: "center right", 
             transform: `rotate(${isPlaying ? -81 : -90}deg)`,
             filter: "drop-shadow(-8px 12px 6px rgba(0,0,0,0.6))"
           }}>
-          <div className="h-1 md:h-1.5 w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full" />
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-5 md:w-16 md:h-8 bg-zinc-950 rounded-sm" style={{ transform: "rotate(22deg)", transformOrigin: "center right" }} />
+          <div className="w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full" style={{ height: "40%" }} />
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 bg-zinc-950 rounded-sm" style={{ width: "12%", height: "400%", transform: "rotate(22deg)", transformOrigin: "center right" }} />
         </div>
       </div>
 
-      {/* ★ 通常時のメインパネル */}
+      {/* ★ メインパネル（横画面では右下に移動したり、スマホでは消えたりします） */}
       <div className={`immersive-panel w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl ${isPlaying ? 'playing' : ''}`}>
         
-        {/* CSSで位置を動かすためのクラスを追加したボタン */}
+        {/* 魔法のCSSで位置を動かすためのクラスを追加したボタン */}
         <div className="btn-container relative flex justify-center items-center h-16">
           <button onClick={togglePlay} className={`play-btn absolute z-10 w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest shadow-lg ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.4)]' : 'bg-zinc-100 text-black'}`}>
             {isPlaying ? "STOP" : "PLAY"}
