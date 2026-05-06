@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.4 - Dynamic Groove Texture)
- * Feature: Dynamic groove rendering based on device size
- * Fix: Groove step size automatically switches between 2px (Mobile) and 5px (PC/Tablet) to eliminate moiré and keep textures sharp.
+ * Project: Vintage Vinyl Player (v3.4.5 - Immersive Controls)
+ * Feature: Fade out landscape controls during playback for maximum immersion.
+ * Fix: Changed landscape PLAY/STOP and Help buttons to become highly transparent and darkly colored when isPlaying is true.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -224,13 +224,16 @@ export default function App() {
         </div>
       )}
 
-      {/* ★ 横画面（Landscape）時：左側の巨大PLAYボタン */}
+      {/* ★ 横画面（Landscape）時：左側の巨大PLAY/STOPボタン */}
       {isLandscape && (
         <button 
           onClick={togglePlay} 
-          className={`shrink-0 z-50 w-24 h-24 md:w-32 md:h-32 rounded-full font-black text-sm md:text-xl active:scale-95 transition-all duration-300 uppercase tracking-widest shadow-2xl border border-white/10 flex items-center justify-center
-            ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_50px_rgba(239,68,68,0.5)] scale-[1.05]' : 'bg-zinc-100 text-black hover:bg-white'}
-          `}>
+          className={`shrink-0 z-50 w-24 h-24 md:w-32 md:h-32 rounded-full font-black text-sm md:text-xl active:scale-95 transition-all duration-700 uppercase tracking-widest flex items-center justify-center backdrop-blur-sm
+            ${isPlaying 
+              ? 'bg-black/10 text-zinc-600 border border-zinc-800/30 shadow-none opacity-20 hover:opacity-80 scale-100' 
+              : 'bg-zinc-100 text-black border border-white/10 shadow-2xl hover:bg-white scale-[1.05]'}
+          `}
+        >
           {isPlaying ? "STOP" : "PLAY"}
         </button>
       )}
@@ -358,14 +361,18 @@ export default function App() {
       {isLandscape && (
         <button 
           onClick={() => setShowHelp(true)} 
-          className="shrink-0 z-50 w-16 h-16 md:w-20 md:h-20 bg-zinc-800/80 backdrop-blur-md border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-xl"
+          className={`shrink-0 z-50 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center font-sans transition-all duration-700 active:scale-95 backdrop-blur-md
+            ${isPlaying
+              ? 'bg-black/10 text-zinc-600 border border-zinc-800/30 shadow-none opacity-20 hover:opacity-80'
+              : 'bg-zinc-800/80 text-zinc-300 hover:text-white hover:bg-zinc-700 border border-zinc-700 shadow-xl'}
+          `}
           aria-label="使い方を開く"
         >
-          <span className="text-2xl md:text-3xl font-black font-sans">？</span>
+          <span className="text-2xl md:text-3xl font-black">？</span>
         </button>
       )}
 
-      {/* ★ メインパネル */}
+      {/* ★ メインパネル（縦画面時は中央下で絶対に消えない、PC横画面時は右下にひっそり配置、スマホ横画面時は非表示） */}
       <div className={`transition-all duration-700 z-40
         ${!isLandscape 
           ? `relative w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl` 
