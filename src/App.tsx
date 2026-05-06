@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.2 - Fine Tuning)
- * Feature: Centered CRITERION text, 1.12x scale for mobile landscape
- * Fix: Adjusted mobile landscape scale factor to 1.12x, absolutely positioned Vee-Jay subtext.
+ * Project: Vintage Vinyl Player (v3.4.3 - Texture Fix)
+ * Feature: Reduced moiré/blur effect on Mac displays
+ * Fix: Increased repeating-radial-gradient step size from 2px to 3px to prevent sub-pixel rendering issues on Retina displays.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -234,7 +234,7 @@ export default function App() {
       <div 
         className={`relative flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-white/5 overflow-visible z-10 transition-all duration-1000 shrink-0
           ${isMobileLandscape 
-            ? 'w-[101vh] aspect-square max-w-[calc(100vw-180px)] m-0' // 1.12倍相当に変更
+            ? 'w-[101vh] aspect-square max-w-[calc(100vw-180px)] m-0' 
             : isLandscape 
               ? 'w-[90vh] aspect-square max-w-[calc(100vw-450px)] m-0' 
               : 'w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] mt-4 mb-8'}
@@ -242,9 +242,9 @@ export default function App() {
         style={{ transform: getRecordTransform() }}
       >
         
-        {/* レコード盤面 */}
+        {/* ★ レコード盤面 (溝のグラデーション幅を 2px -> 3px に広げてMacの滲みを解消) */}
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
-          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
+          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1.5px, rgba(255,255,255,0.06) 2.2px, #020202 3px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
           <div className="absolute inset-0 rounded-full opacity-[0.20] pointer-events-none z-10" 
                style={{ 
