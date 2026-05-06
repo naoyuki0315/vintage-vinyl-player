@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.0.0 - Immersive Update)
- * Feature: "Watch Forever" Immersive Mode & Landscape Mobile Layout
- * Fix: Dynamic scaling, UI fade-out, split floating controls
+ * Project: Vintage Vinyl Player (v3.0.2 - Immersive Perfected)
+ * Feature: Restored normal layout, added exclusive landscape layout
+ * Fix: Used CSS media queries to completely separate normal and landscape controls
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -114,59 +114,41 @@ export default function App() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden relative">
       
-      {/* 没入モードと横画面のための専用CSS */}
+      {/* ★ 没入ズームと横画面切り替えのためのCSS */}
       <style>{`
         .immersive-panel {
           transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        /* 縦画面（通常）再生時はパネルを下にフェードアウトさせる */
         .immersive-panel.playing {
           opacity: 0;
-          transform: translateY(20px);
+          transform: translateY(30px);
           pointer-events: none;
         }
-        .floating-controls {
-          position: fixed;
-          z-index: 50;
-          pointer-events: none;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 3rem;
-          bottom: 25px;
-          left: 50%;
-          transform: translateX(-50%);
-          transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .control-btn {
-          pointer-events: auto;
-        }
+
         .record-wrapper {
           transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        /* 縦画面（通常）再生時は少しだけズーム */
         .record-wrapper.playing {
-          transform: scale(1.12);
+          transform: scale(1.05);
         }
         
-        /* スマホ横画面（ランドスケープ）時の特別レイアウト */
+        /* ★ スマホ横画面（ランドスケープ）専用レイアウト */
         @media screen and (max-height: 500px) and (orientation: landscape) {
-          .floating-controls {
-            top: 50%;
-            bottom: auto;
-            left: 0;
-            width: 100%;
-            transform: translateY(-50%);
-            justify-content: space-between;
-            padding: 0 max(4vw, 20px);
-            gap: 0;
+          .landscape-controls {
+            display: flex !important;
           }
           .immersive-panel {
-            display: none !important;
+            display: none !important; /* 横画面時はメインパネルを完全に消す */
           }
           .record-wrapper {
             margin-bottom: 0 !important;
+            margin-top: 0 !important;
           }
+          /* 横画面時はさらに大きくズーム！ */
           .record-wrapper.playing {
-            transform: scale(1.2); /* 横画面時はさらにズーム！ */
+            transform: scale(1.15); 
           }
         }
       `}</style>
@@ -190,8 +172,8 @@ export default function App() {
               <div>
                 <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">🎵 基本的な遊び方</h3>
                 <ul className="list-disc pl-4 space-y-1">
-                  <li><strong className="text-zinc-100">PLAY / STOP:</strong> レコードの再生・停止を操作します。再生中は「没入モード」になり、レコードがズームします。</li>
-                  <li><strong className="text-zinc-100">スマホ横画面対応:</strong> スマホを横に向けると、専用のフルスクリーンプレイヤーになります。</li>
+                  <li><strong className="text-zinc-100">PLAY / STOP:</strong> レコードの再生・停止を操作します。再生中はレコードがズームして没入モードになります。</li>
+                  <li><strong className="text-zinc-100">スマホ横画面対応:</strong> スマホを横に向けると、パネルが消えて専用のフルスクリーンプレイヤーになります。</li>
                 </ul>
               </div>
 
@@ -201,6 +183,10 @@ export default function App() {
                 <div className="bg-red-500/10 border border-red-500/20 p-3 md:p-4 rounded-2xl text-red-200 shadow-inner">
                   <strong className="text-red-400 block mb-2 text-sm">⚠️ アップロード時のご注意</strong>
                   <p className="mb-2">ブラウザがフリーズするのを防ぐため、ファイルの容量に<strong className="text-white">【20MBまで】</strong>の制限を設けています。</p>
+                  <ul className="list-disc pl-4 space-y-1.5 mt-2">
+                    <li><strong className="text-red-300">音声ファイル（mp3, m4a等）:</strong><br/>約8分〜10分程度の曲をセットできます。</li>
+                    <li><strong className="text-red-300">動画ファイル（mp4, mov等）:</strong><br/>映像データは重いため、数十秒〜1分程度に限られます。※映像は出ず<strong className="text-white">「音声のみ」</strong>が抽出されて流れます。</li>
+                  </ul>
                 </div>
               </div>
 
@@ -221,29 +207,28 @@ export default function App() {
         </div>
       )}
 
-      {/* ★ 独立したフローティングボタン（左にPLAY、右に？が振り分けられます） */}
-      <div className="floating-controls">
+      {/* ★ スマホ横画面（ランドスケープ）になった時だけ現れる専用のボタン */}
+      <div className="landscape-controls fixed inset-0 z-50 pointer-events-none hidden items-center justify-between px-8 md:px-16 w-full h-full">
         <button 
           onClick={togglePlay} 
-          className={`control-btn w-16 h-16 md:w-20 md:h-20 rounded-full font-black text-[12px] md:text-sm active:scale-95 transition-all duration-300 uppercase tracking-widest shadow-2xl border border-white/10 flex items-center justify-center
+          className={`pointer-events-auto w-16 h-16 md:w-20 md:h-20 rounded-full font-black text-sm active:scale-95 transition-all duration-300 uppercase tracking-widest shadow-2xl border border-white/10 flex items-center justify-center
             ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_40px_rgba(239,68,68,0.4)]' : 'bg-zinc-100 text-black hover:bg-white'}
           `}>
           {isPlaying ? "STOP" : "PLAY"}
         </button>
-
         <button 
           onClick={() => setShowHelp(true)} 
-          className="control-btn w-12 h-12 md:w-14 md:h-14 bg-zinc-800/80 backdrop-blur-md border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-xl"
+          className="pointer-events-auto w-12 h-12 md:w-14 md:h-14 bg-zinc-800/80 backdrop-blur-md border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-xl"
           aria-label="使い方を開く"
         >
-          <span className="text-lg md:text-xl font-black font-sans">？</span>
+          <span className="text-xl font-black font-sans">？</span>
         </button>
       </div>
 
-      {/* レコード全体コンテナ（再生中はクラスでズーム、vmin単位で絶対にはみ出さない設計） */}
-      <div className={`record-wrapper relative w-[88vmin] h-[88vmin] max-w-[420px] max-h-[420px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mb-[100px] border border-white/5 overflow-visible z-10 ${isPlaying ? 'playing' : ''}`}>
+      {/* レコード全体（再生中はクラスがついてズームします） */}
+      <div className={`record-wrapper relative w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible z-10 ${isPlaying ? 'playing' : ''}`}>
         
-        {/* レコード盤面（回転する部分） */}
+        {/* レコード盤面 */}
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
@@ -312,12 +297,10 @@ export default function App() {
               <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
             </div>
             
-            {/* レコード中心の穴 */}
             <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 z-20 shadow-[inset_0_1px_3px_rgba(0,0,0,0.8)]" />
           </div>
         </div>
 
-        {/* 1の光（固定のハイライト） */}
         <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.45] md:opacity-[0.4] pointer-events-none z-20" 
              style={{ 
                background: "conic-gradient(from 0deg, transparent 9deg, rgba(255,255,255,0.5) 45deg, transparent 81deg, transparent 189deg, rgba(255,255,255,0.5) 225deg, transparent 261deg)",
@@ -325,12 +308,10 @@ export default function App() {
                maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 24.3%, black 24.4%)"
              }} />
 
-        {/* スピンドル（1.4%に拡大済み） */}
         <div className="absolute w-[1.4%] h-[1.4%] rounded-full bg-gradient-to-br from-zinc-200 to-zinc-500 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.8)] pointer-events-none" />
 
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
         
-        {/* アーム */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
             top: "10.5%", right: "10.5%", width: "75%", height: "8px", 
@@ -343,9 +324,24 @@ export default function App() {
         </div>
       </div>
 
-      {/* ★ 再生中はフェードアウトする設定パネル */}
+      {/* ★ 通常時のメインパネル（横画面になるとCSSで非表示になります） */}
       <div className={`immersive-panel w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl ${isPlaying ? 'playing' : ''}`}>
         
+        {/* 元通りの配置に戻ったPLAY/STOPと？ボタン */}
+        <div className="relative flex justify-center items-center h-16">
+          <button onClick={togglePlay} className={`absolute z-10 w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest shadow-lg ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
+            {isPlaying ? "STOP" : "PLAY"}
+          </button>
+          
+          <button 
+            onClick={() => setShowHelp(true)} 
+            className="absolute right-2 md:right-4 w-10 h-10 md:w-11 md:h-11 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-md"
+            aria-label="使い方を開く"
+          >
+            <span className="text-base md:text-lg font-black font-sans">？</span>
+          </button>
+        </div>
+
         <div className="grid grid-cols-2 gap-2">
           {Object.keys(labelStyles).map((style) => (
             <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:bg-black/60'}`}>
