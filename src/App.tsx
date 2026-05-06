@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.2.0 - Bulletproof Responsive)
- * Feature: React-driven layout switching for Mobile/Tablet/PC, Scalable tone arm
- * Fix: Replaced CSS media queries with Window resize listener to bypass cache/CSS conflicts
+ * Project: Vintage Vinyl Player (v3.3.0 - Ultimate Center & Scalable)
+ * Feature: Perfect Flexbox centering between asymmetrical buttons, 3x Scale on PC
+ * Fix: Re-architected landscape layout using Flexbox space-between for pixel-perfect centering
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -131,8 +131,11 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden relative">
-      
+    // ★ ルートコンテナ：横画面時はFlexboxで[左右ボタンとレコード]を均等配置、縦画面時は中央寄せ
+    <div className={`flex items-center min-h-screen bg-[#050505] text-zinc-400 font-sans select-none overflow-hidden relative transition-all duration-1000
+      ${isLandscape ? 'flex-row justify-between px-6 md:px-16' : 'flex-col justify-center p-3 md:p-6'}
+    `}>
+
       {showHelp && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-zinc-900 border border-zinc-700 rounded-[30px] p-6 w-full max-w-md max-h-[85vh] overflow-y-auto relative shadow-2xl">
@@ -187,31 +190,21 @@ export default function App() {
         </div>
       )}
 
-      {/* ★ 横画面（Landscape）時のみ現れる、巨大な独立ボタン */}
+      {/* ★ 横画面（Landscape）時：左側の巨大PLAYボタン */}
       {isLandscape && (
-        <>
-          <button 
-            onClick={togglePlay} 
-            className={`fixed left-6 md:left-16 top-1/2 -translate-y-1/2 z-50 w-24 h-24 md:w-32 md:h-32 rounded-full font-black text-sm md:text-xl active:scale-95 transition-all duration-300 uppercase tracking-widest shadow-2xl border border-white/10 flex items-center justify-center
-              ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_50px_rgba(239,68,68,0.5)] scale-[1.05]' : 'bg-zinc-100 text-black hover:bg-white'}
-            `}>
-            {isPlaying ? "STOP" : "PLAY"}
-          </button>
-          
-          <button 
-            onClick={() => setShowHelp(true)} 
-            className="fixed right-6 md:right-16 top-1/2 -translate-y-1/2 z-50 w-16 h-16 md:w-20 md:h-20 bg-zinc-800/80 backdrop-blur-md border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-xl"
-            aria-label="使い方を開く"
-          >
-            <span className="text-2xl md:text-3xl font-black font-sans">？</span>
-          </button>
-        </>
+        <button 
+          onClick={togglePlay} 
+          className={`shrink-0 z-50 w-24 h-24 md:w-32 md:h-32 rounded-full font-black text-sm md:text-xl active:scale-95 transition-all duration-300 uppercase tracking-widest shadow-2xl border border-white/10 flex items-center justify-center
+            ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_50px_rgba(239,68,68,0.5)] scale-[1.05]' : 'bg-zinc-100 text-black hover:bg-white'}
+          `}>
+          {isPlaying ? "STOP" : "PLAY"}
+        </button>
       )}
 
-      {/* ★ レコード全体コンテナ（縦画面と横画面でクラスを完全に切り替えます） */}
-      <div className={`relative flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-white/5 overflow-visible z-10 transition-all duration-1000
+      {/* ★ レコード全体コンテナ（横画面時はPLAYと？の間の「ど真ん中」に配置されます） */}
+      <div className={`relative flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-white/5 overflow-visible z-10 transition-all duration-1000 shrink-0
         ${isLandscape 
-          ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vh] h-[90vh] max-w-[1200px] max-h-[1200px] m-0' 
+          ? 'w-[90vh] aspect-square max-w-[calc(100vw-240px)] md:max-w-[calc(100vw-380px)] m-0' 
           : 'w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] mt-4 mb-8'}
         ${isPlaying && !isLandscape ? 'scale-[1.05]' : ''}
         ${isPlaying && isLandscape ? 'scale-[1.02]' : ''}
@@ -297,10 +290,13 @@ export default function App() {
                maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 24.3%, black 24.4%)"
              }} />
 
+        {/* スピンドル */}
         <div className="absolute w-[1.4%] h-[1.4%] rounded-full bg-gradient-to-br from-zinc-200 to-zinc-500 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.8)] pointer-events-none" />
 
+        {/* アームの軸 */}
         <div className="absolute rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%", width: "9%", height: "9%" }} />
         
+        {/* アーム */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
             top: "10.5%", right: "10.5%", width: "75%", height: "2%", 
@@ -313,10 +309,21 @@ export default function App() {
         </div>
       </div>
 
-      {/* ★ メインパネル（縦画面時は中央下、PC横画面時は右下、スマホ横画面時は非表示） */}
-      <div className={`transition-all duration-700 relative z-40
+      {/* ★ 横画面（Landscape）時：右側の？ボタン */}
+      {isLandscape && (
+        <button 
+          onClick={() => setShowHelp(true)} 
+          className="shrink-0 z-50 w-16 h-16 md:w-20 md:h-20 bg-zinc-800/80 backdrop-blur-md border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-xl"
+          aria-label="使い方を開く"
+        >
+          <span className="text-2xl md:text-3xl font-black font-sans">？</span>
+        </button>
+      )}
+
+      {/* ★ メインパネル（縦画面時は中央下、PC横画面時は右下にひっそり配置、スマホ横画面時は非表示） */}
+      <div className={`transition-all duration-700 z-40
         ${!isLandscape 
-          ? `w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl ${isPlaying ? 'opacity-0 translate-y-8 pointer-events-none' : ''}` 
+          ? `relative w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl ${isPlaying ? 'opacity-0 translate-y-8 pointer-events-none' : ''}` 
           : ''}
         ${isLandscape && !isMobileLandscape 
           ? `fixed bottom-6 right-6 w-80 bg-zinc-900/30 hover:bg-zinc-900/90 p-5 rounded-[25px] border border-white/10 shadow-2xl backdrop-blur-md opacity-30 hover:opacity-100 space-y-3 ${isPlaying ? 'opacity-10' : ''}` 
