@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v2.6.23)
- * Fix: Increased spindle size by 1.25x (1.1% -> 1.4%)
- * Design: Deep Shadows (0.95) & Conic Reflections (0.35)
+ * Project: Vintage Vinyl Player (v3.0.0 - Immersive Update)
+ * Feature: "Watch Forever" Immersive Mode & Landscape Mobile Layout
+ * Fix: Dynamic scaling, UI fade-out, split floating controls
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -112,14 +112,71 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden pb-10 relative">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden relative">
       
+      {/* 没入モードと横画面のための専用CSS */}
+      <style>{`
+        .immersive-panel {
+          transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .immersive-panel.playing {
+          opacity: 0;
+          transform: translateY(20px);
+          pointer-events: none;
+        }
+        .floating-controls {
+          position: fixed;
+          z-index: 50;
+          pointer-events: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 3rem;
+          bottom: 25px;
+          left: 50%;
+          transform: translateX(-50%);
+          transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .control-btn {
+          pointer-events: auto;
+        }
+        .record-wrapper {
+          transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .record-wrapper.playing {
+          transform: scale(1.12);
+        }
+        
+        /* スマホ横画面（ランドスケープ）時の特別レイアウト */
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+          .floating-controls {
+            top: 50%;
+            bottom: auto;
+            left: 0;
+            width: 100%;
+            transform: translateY(-50%);
+            justify-content: space-between;
+            padding: 0 max(4vw, 20px);
+            gap: 0;
+          }
+          .immersive-panel {
+            display: none !important;
+          }
+          .record-wrapper {
+            margin-bottom: 0 !important;
+          }
+          .record-wrapper.playing {
+            transform: scale(1.2); /* 横画面時はさらにズーム！ */
+          }
+        }
+      `}</style>
+
       {showHelp && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-zinc-900 border border-zinc-700 rounded-[30px] p-6 w-full max-w-md max-h-[85vh] overflow-y-auto relative shadow-2xl">
             <button 
               onClick={() => setShowHelp(false)} 
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all"
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all pointer-events-auto"
             >
               ✕
             </button>
@@ -133,8 +190,8 @@ export default function App() {
               <div>
                 <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">🎵 基本的な遊び方</h3>
                 <ul className="list-disc pl-4 space-y-1">
-                  <li><strong className="text-zinc-100">PLAY / STOP:</strong> 中央のボタンでレコードの再生・停止を操作します。</li>
-                  <li><strong className="text-zinc-100">レーベル変更:</strong> 画面下の4つのボタンから盤面のデザインを着せ替えます。</li>
+                  <li><strong className="text-zinc-100">PLAY / STOP:</strong> レコードの再生・停止を操作します。再生中は「没入モード」になり、レコードがズームします。</li>
+                  <li><strong className="text-zinc-100">スマホ横画面対応:</strong> スマホを横に向けると、専用のフルスクリーンプレイヤーになります。</li>
                 </ul>
               </div>
 
@@ -144,10 +201,6 @@ export default function App() {
                 <div className="bg-red-500/10 border border-red-500/20 p-3 md:p-4 rounded-2xl text-red-200 shadow-inner">
                   <strong className="text-red-400 block mb-2 text-sm">⚠️ アップロード時のご注意</strong>
                   <p className="mb-2">ブラウザがフリーズするのを防ぐため、ファイルの容量に<strong className="text-white">【20MBまで】</strong>の制限を設けています。</p>
-                  <ul className="list-disc pl-4 space-y-1.5 mt-2">
-                    <li><strong className="text-red-300">音声ファイル（mp3, m4a等）:</strong><br/>約8分〜10分程度の曲をセットできます。</li>
-                    <li><strong className="text-red-300">動画ファイル（mp4, mov等）:</strong><br/>映像データは重いため、数十秒〜1分程度に限られます。※映像は出ず<strong className="text-white">「音声のみ」</strong>が抽出されて流れます。</li>
-                  </ul>
                 </div>
               </div>
 
@@ -160,7 +213,7 @@ export default function App() {
             
             <button 
               onClick={() => setShowHelp(false)} 
-              className="mt-7 w-full py-3.5 rounded-xl bg-white text-black font-black text-xs tracking-widest uppercase active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+              className="mt-7 w-full py-3.5 rounded-xl bg-white text-black font-black text-xs tracking-widest uppercase active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] pointer-events-auto"
             >
               閉じる
             </button>
@@ -168,13 +221,32 @@ export default function App() {
         </div>
       )}
 
-      <div className="relative w-[92vw] h-[92vw] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible">
+      {/* ★ 独立したフローティングボタン（左にPLAY、右に？が振り分けられます） */}
+      <div className="floating-controls">
+        <button 
+          onClick={togglePlay} 
+          className={`control-btn w-16 h-16 md:w-20 md:h-20 rounded-full font-black text-[12px] md:text-sm active:scale-95 transition-all duration-300 uppercase tracking-widest shadow-2xl border border-white/10 flex items-center justify-center
+            ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_40px_rgba(239,68,68,0.4)]' : 'bg-zinc-100 text-black hover:bg-white'}
+          `}>
+          {isPlaying ? "STOP" : "PLAY"}
+        </button>
+
+        <button 
+          onClick={() => setShowHelp(true)} 
+          className="control-btn w-12 h-12 md:w-14 md:h-14 bg-zinc-800/80 backdrop-blur-md border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-xl"
+          aria-label="使い方を開く"
+        >
+          <span className="text-lg md:text-xl font-black font-sans">？</span>
+        </button>
+      </div>
+
+      {/* レコード全体コンテナ（再生中はクラスでズーム、vmin単位で絶対にはみ出さない設計） */}
+      <div className={`record-wrapper relative w-[88vmin] h-[88vmin] max-w-[420px] max-h-[420px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mb-[100px] border border-white/5 overflow-visible z-10 ${isPlaying ? 'playing' : ''}`}>
         
-        {/* ★ レコード盤面（回転する部分） */}
+        {/* レコード盤面（回転する部分） */}
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1px, rgba(255,255,255,0.06) 1.5px, #020202 2px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
-          {/* ★ 盤面と一緒に回る「溝のムラ・スレ」レイヤー（マスク半径を1.3倍の24.4%に拡大） */}
           <div className="absolute inset-0 rounded-full opacity-[0.20] pointer-events-none z-10" 
                style={{ 
                  background: "conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.15) 15deg, rgba(0,0,0,0.5) 35deg, transparent 60deg, rgba(255,255,255,0.05) 85deg, rgba(0,0,0,0.4) 110deg, transparent 140deg, rgba(255,255,255,0.1) 170deg, rgba(0,0,0,0.6) 200deg, transparent 230deg, rgba(255,255,255,0.15) 260deg, rgba(0,0,0,0.5) 290deg, transparent 320deg, rgba(255,255,255,0.05) 340deg, transparent 360deg)",
@@ -245,7 +317,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* ★ 1の光：固定された環境光・ハイライト（強さを半分に落とし、マスク半径を1.3倍に拡大） */}
+        {/* 1の光（固定のハイライト） */}
         <div className="absolute w-[88%] h-[88%] rounded-full opacity-[0.45] md:opacity-[0.4] pointer-events-none z-20" 
              style={{ 
                background: "conic-gradient(from 0deg, transparent 9deg, rgba(255,255,255,0.5) 45deg, transparent 81deg, transparent 189deg, rgba(255,255,255,0.5) 225deg, transparent 261deg)",
@@ -253,12 +325,12 @@ export default function App() {
                maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 24.3%, black 24.4%)"
              }} />
 
-        {/* ★ スピンドル（プレイヤーの金属の軸）：回転しないように外側に配置 (サイズを1.1%から1.4%に拡大) */}
+        {/* スピンドル（1.4%に拡大済み） */}
         <div className="absolute w-[1.4%] h-[1.4%] rounded-full bg-gradient-to-br from-zinc-200 to-zinc-500 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.8)] pointer-events-none" />
 
         <div className="absolute w-10 h-10 md:w-11 md:h-11 rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%" }} />
         
-        {/* ★ アーム：ドロップシャドウ（落ち影）を追加して立体感をアップ */}
+        {/* アーム */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
             top: "10.5%", right: "10.5%", width: "75%", height: "8px", 
@@ -271,25 +343,12 @@ export default function App() {
         </div>
       </div>
 
-      <div className="w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl">
+      {/* ★ 再生中はフェードアウトする設定パネル */}
+      <div className={`immersive-panel w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl ${isPlaying ? 'playing' : ''}`}>
         
-        <div className="relative flex justify-center items-center h-16">
-          <button onClick={togglePlay} className={`absolute z-10 w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest shadow-lg ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
-            {isPlaying ? "STOP" : "PLAY"}
-          </button>
-          
-          <button 
-            onClick={() => setShowHelp(true)} 
-            className="absolute right-2 md:right-4 w-10 h-10 md:w-11 md:h-11 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-md"
-            aria-label="使い方を開く"
-          >
-            <span className="text-base md:text-lg font-black font-sans">？</span>
-          </button>
-        </div>
-
         <div className="grid grid-cols-2 gap-2">
           {Object.keys(labelStyles).map((style) => (
-            <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800'}`}>
+            <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:bg-black/60'}`}>
               <span className="opacity-50 text-[6px] mb-0.5">Parody of</span>
               {style === "2120" ? "2120" : style === "Red-Chkr" ? "RED CHECKER" : style === "Vee-Jay" ? "DDM" : "RISING SUN"}
             </button>
