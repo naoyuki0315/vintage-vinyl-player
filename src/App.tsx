@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.6 - UI Refinement)
- * Feature: Improved visibility of immersive landscape controls.
- * Fix: Removed global opacity on landscape controls during playback. Instead, applied specific alpha channel colors to border and text to keep the circular outline faintly visible.
+ * Project: Vintage Vinyl Player (v3.4.7 - Touch Device Optimization)
+ * Feature: Fixed hover state persistence on touch devices.
+ * Fix: Removed Tailwind hover classes on playing buttons and replaced with custom CSS @media (hover: hover) to ensure buttons stay fully transparent on mobile/tablet after tapping.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -174,6 +174,18 @@ export default function App() {
       ${isLandscape ? 'flex-row justify-between px-6 md:px-16' : 'flex-col justify-center p-3 md:p-6'}
     `}>
 
+      {/* ★ タッチデバイス（スマホ・タブレット）でタップ時に明るくならないようにするための専用CSS */}
+      <style>{`
+        @media (hover: hover) {
+          .immersive-btn-playing:hover {
+            background-color: rgba(0, 0, 0, 0.4) !important;
+            color: #d4d4d8 !important; /* zinc-300 */
+            border-color: rgba(161, 161, 170, 0.6) !important; /* zinc-400 */
+            opacity: 0.8 !important;
+          }
+        }
+      `}</style>
+
       {showHelp && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-zinc-900 border border-zinc-700 rounded-[30px] p-6 w-full max-w-md max-h-[85vh] overflow-y-auto relative shadow-2xl">
@@ -230,7 +242,7 @@ export default function App() {
           onClick={togglePlay} 
           className={`shrink-0 z-50 w-24 h-24 md:w-32 md:h-32 rounded-full font-black text-sm md:text-xl active:scale-95 transition-all duration-700 uppercase tracking-widest flex items-center justify-center backdrop-blur-sm
             ${isPlaying 
-              ? 'bg-black/20 text-zinc-500/50 border border-zinc-500/40 shadow-none hover:bg-black/40 hover:text-zinc-300 hover:border-zinc-400 scale-100' 
+              ? 'bg-black/20 text-zinc-500/50 border border-zinc-500/40 shadow-none opacity-20 immersive-btn-playing scale-100' 
               : 'bg-zinc-100 text-black border border-white/10 shadow-2xl hover:bg-white scale-[1.05]'}
           `}
         >
@@ -363,7 +375,7 @@ export default function App() {
           onClick={() => setShowHelp(true)} 
           className={`shrink-0 z-50 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center font-sans transition-all duration-700 active:scale-95 backdrop-blur-md
             ${isPlaying
-              ? 'bg-black/20 text-zinc-500/50 border border-zinc-500/40 shadow-none hover:bg-black/40 hover:text-zinc-300 hover:border-zinc-400'
+              ? 'bg-black/20 text-zinc-500/50 border border-zinc-500/40 shadow-none opacity-20 immersive-btn-playing'
               : 'bg-zinc-800/80 text-zinc-300 hover:text-white hover:bg-zinc-700 border border-zinc-700 shadow-xl'}
           `}
           aria-label="使い方を開く"
@@ -372,7 +384,7 @@ export default function App() {
         </button>
       )}
 
-      {/* ★ メインパネル（縦画面時は中央下で絶対に消えない、PC横画面時は右下にひっそり配置、スマホ横画面時は非表示） */}
+      {/* ★ メインパネル */}
       <div className={`transition-all duration-700 z-40
         ${!isLandscape 
           ? `relative w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl` 
