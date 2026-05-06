@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.3.0 - Ultimate Center & Scalable)
- * Feature: Perfect Flexbox centering between asymmetrical buttons, 3x Scale on PC
- * Fix: Re-architected landscape layout using Flexbox space-between for pixel-perfect centering
+ * Project: Vintage Vinyl Player (v3.4.0 - Perfect Scale & Layout)
+ * Feature: Restored portrait controls during playback, 1.3x scale for mobile landscape, dynamic proportional font scaling
+ * Fix: Added dynamic JS-based proportional scaling via recordSize, shifted PC landscape center.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -23,9 +23,10 @@ export default function App() {
   
   const [showHelp, setShowHelp] = useState(false);
 
-  // ★ 画面サイズを監視するステート
+  // ★ 画面サイズとレコードの実際のピクセルサイズを監視するステート
   const [isLandscape, setIsLandscape] = useState(false);
   const [isMobileLandscape, setIsMobileLandscape] = useState(false);
+  const [recordSize, setRecordSize] = useState(400);
 
   const TARGET_RPM = 12.0; 
   const TARGET_DEG_PER_SEC = (TARGET_RPM * 360) / 60;
@@ -47,20 +48,39 @@ export default function App() {
     }
   };
 
-  // ★ 画面の縦横とサイズをリアルタイムで判定
+  // ★ 画面の縦横とレコードの理想サイズをリアルタイムで算出
   useEffect(() => {
     const checkLayout = () => {
-      const isLand = window.innerWidth > window.innerHeight;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const isLand = w > h;
+      const isMobLand = isLand && h < 600;
+      
       setIsLandscape(isLand);
-      // 高さが600px未満の横画面を「スマホの横持ち」と判定
-      setIsMobileLandscape(isLand && window.innerHeight < 600);
+      setIsMobileLandscape(isMobLand);
+
+      let size = 400;
+      if (isMobLand) {
+        // スマホ横：高さの1.17倍（元より1.3倍化）
+        size = Math.min(h * 1.17, w - 200);
+      } else if (isLand) {
+        // PC横：高さの0.9倍
+        size = Math.min(h * 0.9, w - 450);
+      } else {
+        // 縦画面：画面の短い方の0.88倍（最大400px）
+        const vmin = Math.min(w, h);
+        size = Math.min(vmin * 0.88, 400);
+      }
+      setRecordSize(size);
     };
     
     window.addEventListener("resize", checkLayout);
-    checkLayout(); // 初回実行
-    
+    checkLayout(); 
     return () => window.removeEventListener("resize", checkLayout);
   }, []);
+
+  // ★ 400pxを基準としたフォントの拡大率（これで文字も完璧に巨大化します）
+  const FONT_SCALE = recordSize / 400;
 
   useEffect(() => {
     if (audioRef.current && audioUrl) {
@@ -124,14 +144,27 @@ export default function App() {
 
   const getDynamicFontSize = (text: string, baseSize: number) => {
     const len = text.length;
-    if (len <= 10) return `${baseSize}px`; 
-    if (len <= 15) return `${baseSize * 0.85}px`; 
-    if (len <= 20) return `${baseSize * 0.7}px`; 
-    return `${baseSize * 0.55}px`; 
+    let ratio = 1;
+    if (len <= 10) ratio = 1;
+    else if (len <= 15) ratio = 0.85;
+    else if (len <= 20) ratio = 0.7;
+    else ratio = 0.55;
+    
+    // ベースサイズ × 調整率 × 全体の巨大化スケール
+    return `${baseSize * ratio * FONT_SCALE}px`;
+  };
+
+  // レコードの移動やズームを管理する魔法のスタイル
+  const getRecordTransform = () => {
+    const transforms = [];
+    // PC横画面の時だけ、中心から左に1/10 (10vw) ずらす
+    if (isLandscape && !isMobileLandscape) transforms.push('translateX(-10vw)');
+    if (isPlaying && !isLandscape) transforms.push('scale(1.05)');
+    if (isPlaying && isLandscape) transforms.push('scale(1.02)');
+    return transforms.length > 0 ? transforms.join(' ') : 'none';
   };
 
   return (
-    // ★ ルートコンテナ：横画面時はFlexboxで[左右ボタンとレコード]を均等配置、縦画面時は中央寄せ
     <div className={`flex items-center min-h-screen bg-[#050505] text-zinc-400 font-sans select-none overflow-hidden relative transition-all duration-1000
       ${isLandscape ? 'flex-row justify-between px-6 md:px-16' : 'flex-col justify-center p-3 md:p-6'}
     `}>
@@ -166,10 +199,6 @@ export default function App() {
                 <div className="bg-red-500/10 border border-red-500/20 p-3 md:p-4 rounded-2xl text-red-200 shadow-inner">
                   <strong className="text-red-400 block mb-2 text-sm">⚠️ アップロード時のご注意</strong>
                   <p className="mb-2">ブラウザがフリーズするのを防ぐため、ファイルの容量に<strong className="text-white">【20MBまで】</strong>の制限を設けています。</p>
-                  <ul className="list-disc pl-4 space-y-1.5 mt-2">
-                    <li><strong className="text-red-300">音声ファイル（mp3, m4a等）:</strong><br/>約8分〜10分程度の曲をセットできます。</li>
-                    <li><strong className="text-red-300">動画ファイル（mp4, mov等）:</strong><br/>映像データは重いため、数十秒〜1分程度に限られます。※映像は出ず<strong className="text-white">「音声のみ」</strong>が抽出されて流れます。</li>
-                  </ul>
                 </div>
               </div>
 
@@ -201,14 +230,17 @@ export default function App() {
         </button>
       )}
 
-      {/* ★ レコード全体コンテナ（横画面時はPLAYと？の間の「ど真ん中」に配置されます） */}
-      <div className={`relative flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-white/5 overflow-visible z-10 transition-all duration-1000 shrink-0
-        ${isLandscape 
-          ? 'w-[90vh] aspect-square max-w-[calc(100vw-240px)] md:max-w-[calc(100vw-380px)] m-0' 
-          : 'w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] mt-4 mb-8'}
-        ${isPlaying && !isLandscape ? 'scale-[1.05]' : ''}
-        ${isPlaying && isLandscape ? 'scale-[1.02]' : ''}
-      `}>
+      {/* ★ レコード全体コンテナ */}
+      <div 
+        className={`relative flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-white/5 overflow-visible z-10 transition-all duration-1000 shrink-0
+          ${isMobileLandscape 
+            ? 'w-[117vh] aspect-square max-w-[calc(100vw-180px)] m-0' 
+            : isLandscape 
+              ? 'w-[90vh] aspect-square max-w-[calc(100vw-450px)] m-0' 
+              : 'w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] mt-4 mb-8'}
+        `}
+        style={{ transform: getRecordTransform() }}
+      >
         
         {/* レコード盤面 */}
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
@@ -229,14 +261,14 @@ export default function App() {
                 <div className="absolute top-0 w-full h-full">
                   <div className="absolute bottom-0 w-full h-[48%] bg-[#f2f0e4]" />
                   <div className="absolute top-0 w-full h-[52%] flex flex-col items-center justify-end pb-[10%] z-10 text-white">
-                      <span className="text-[10px] md:text-[12px] mb-0.5">♛</span>
+                      <span style={{ fontSize: `${12 * FONT_SCALE}px` }} className="mb-0.5">♛</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-[14px] md:text-[16px]">†</span>
+                        <span style={{ fontSize: `${16 * FONT_SCALE}px` }}>†</span>
                         <div className="flex flex-col items-center">
-                          <div className="text-[16px] md:text-[18px] font-black tracking-tighter leading-none">2120</div>
-                          <div className="text-[3px] md:text-[3.5px] font-bold tracking-[0.15em] mt-0.5 uppercase">RECORD CORP.</div>
+                          <div style={{ fontSize: `${18 * FONT_SCALE}px`, lineHeight: 1 }} className="font-black tracking-tighter">2120</div>
+                          <div style={{ fontSize: `${3.5 * FONT_SCALE}px` }} className="font-bold tracking-[0.15em] mt-0.5 uppercase">RECORD CORP.</div>
                         </div>
-                        <span className="text-[14px] md:text-[16px]">♘</span>
+                        <span style={{ fontSize: `${16 * FONT_SCALE}px` }}>♘</span>
                       </div>
                   </div>
                 </div>
@@ -246,18 +278,18 @@ export default function App() {
                   <div className="absolute top-0 w-full h-[55%] opacity-25 border-b border-white/20" 
                     style={{ backgroundImage: `linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)`, backgroundSize: '12px 12px', borderRadius: '50% 50% 0 0' }} 
                   />
-                  <div className="absolute top-[14%] w-full text-center text-white font-serif italic font-black text-[11px] md:text-[13px] tracking-tighter scale-y-125">Red Checker</div>
-                  <div className="absolute w-full text-center text-white text-[2.5px] md:text-[2.8px] font-bold tracking-[0.25em]" style={{ top: "42%" }}>RECORDING CO.</div>
+                  <div style={{ fontSize: `${13 * FONT_SCALE}px` }} className="absolute top-[14%] w-full text-center text-white font-serif italic font-black tracking-tighter scale-y-125">Red Checker</div>
+                  <div style={{ fontSize: `${2.8 * FONT_SCALE}px`, top: "42%" }} className="absolute w-full text-center text-white font-bold tracking-[0.25em]">RECORDING CO.</div>
                 </div>
               )}
               {selectedLabel === "Vee-Jay" && (
-                <div className="absolute top-0 w-full h-full flex flex-col items-center">
+                <div className="absolute top-0 w-full h-full flex flex-col items-center w-full">
                   <div className="absolute inset-[5%] rounded-full border border-white/30" />
-                  <div className="absolute top-[7%] flex flex-col items-center">
-                    <div className="w-7 h-6 md:w-10 md:h-8 border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden">
-                      <span className="text-white text-[11px] md:text-[13px] font-black italic tracking-tighter leading-none">DDM</span>
+                  <div className="absolute top-[7%] flex flex-col items-center w-full">
+                    <div className="w-[27%] h-[21%] border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden">
+                      <span style={{ fontSize: `${13 * FONT_SCALE}px` }} className="text-white font-black italic tracking-tighter leading-none">DDM</span>
                     </div>
-                    <div className="text-[5px] md:text-[7px] font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
+                    <div style={{ fontSize: `${7 * FONT_SCALE}px` }} className="font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
                   </div>
                 </div>
               )}
@@ -265,18 +297,18 @@ export default function App() {
                 <div className="absolute top-0 w-full h-full flex flex-col items-center">
                   <div className="absolute top-0 w-full h-full opacity-[0.18]" style={{ background: "repeating-conic-gradient(from 270deg, #3f2b1d 0deg 7.5deg, transparent 7.5deg 20deg)", maskImage: "linear-gradient(to bottom, black 50%, transparent 55%)" }} />
                   <div className="absolute top-[5%] w-[84%] h-[38%] rounded-t-full border-[1px] border-[#3f2b1d]/60 flex flex-col items-center pt-1 text-[#3f2b1d]">
-                      <div className="text-[4px] md:text-[5px] font-bold tracking-[0.3em] leading-none">RISING</div>
-                      <div className="text-[18px] md:text-[22px] font-black italic tracking-tighter leading-[0.8] mt-0.5">SUN</div>
+                      <div style={{ fontSize: `${5 * FONT_SCALE}px` }} className="font-bold tracking-[0.3em] leading-none">RISING</div>
+                      <div style={{ fontSize: `${22 * FONT_SCALE}px`, lineHeight: 0.8 }} className="font-black italic tracking-tighter mt-0.5">SUN</div>
                   </div>
-                  <div className="absolute top-[42%] text-[3.5px] md:text-[4px] font-black tracking-[0.2em] text-[#3f2b1d]">RECORDING COMPANY</div>
+                  <div style={{ fontSize: `${4 * FONT_SCALE}px`, top: "42%" }} className="absolute w-full text-center text-[#3f2b1d] font-black tracking-[0.2em]">RECORDING COMPANY</div>
                 </div>
               )}
             </div>
 
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[16%] px-1">
-              <div className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1" style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: getDynamicFontSize(displaySongTitle, 6) }}>{displaySongTitle}</div>
-              <div className="font-bold uppercase text-center mb-1.5" style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: getDynamicFontSize(bandName, 5.2) }}>{bandName}</div>
-              <div className="text-[2.2px] md:text-[3px] font-black tracking-[0.22em] uppercase text-center opacity-85" style={{ color: "rgba(255,255,255,0.85)" }}>{labelStyles[selectedLabel].subText}</div>
+              <div style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: getDynamicFontSize(displaySongTitle, 6) }} className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1">{displaySongTitle}</div>
+              <div style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: getDynamicFontSize(bandName, 5.2) }} className="font-bold uppercase text-center mb-1.5">{bandName}</div>
+              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: `${3 * FONT_SCALE}px` }} className="font-black tracking-[0.22em] uppercase text-center opacity-85">{labelStyles[selectedLabel].subText}</div>
             </div>
             
             <div className="absolute w-[8%] h-[8%] rounded-full bg-[#050505] border border-black/50 z-20 shadow-[inset_0_1px_3px_rgba(0,0,0,0.8)]" />
@@ -320,10 +352,10 @@ export default function App() {
         </button>
       )}
 
-      {/* ★ メインパネル（縦画面時は中央下、PC横画面時は右下にひっそり配置、スマホ横画面時は非表示） */}
+      {/* ★ メインパネル（縦画面時は中央下で絶対に消えない、PC横画面時は右下にひっそり配置、スマホ横画面時は非表示） */}
       <div className={`transition-all duration-700 z-40
         ${!isLandscape 
-          ? `relative w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl ${isPlaying ? 'opacity-0 translate-y-8 pointer-events-none' : ''}` 
+          ? `relative w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl` // 再生時に消す処理を削除
           : ''}
         ${isLandscape && !isMobileLandscape 
           ? `fixed bottom-6 right-6 w-80 bg-zinc-900/30 hover:bg-zinc-900/90 p-5 rounded-[25px] border border-white/10 shadow-2xl backdrop-blur-md opacity-30 hover:opacity-100 space-y-3 ${isPlaying ? 'opacity-10' : ''}` 
