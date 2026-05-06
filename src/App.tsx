@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.3 - Texture Fix)
- * Feature: Reduced moiré/blur effect on Mac displays
- * Fix: Increased repeating-radial-gradient step size from 2px to 3px to prevent sub-pixel rendering issues on Retina displays.
+ * Project: Vintage Vinyl Player (v3.4.4 - Dynamic Groove Texture)
+ * Feature: Dynamic groove rendering based on device size
+ * Fix: Groove step size automatically switches between 2px (Mobile) and 5px (PC/Tablet) to eliminate moiré and keep textures sharp.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -23,10 +23,11 @@ export default function App() {
   
   const [showHelp, setShowHelp] = useState(false);
 
-  // ★ 画面サイズとレコードの実際のピクセルサイズを監視するステート
+  // ★ 画面サイズとレコードの実際のピクセルサイズ、溝の太さを監視するステート
   const [isLandscape, setIsLandscape] = useState(false);
   const [isMobileLandscape, setIsMobileLandscape] = useState(false);
   const [recordSize, setRecordSize] = useState(400);
+  const [grooveSize, setGrooveSize] = useState(2); // レコードの溝の太さ（px）
 
   const TARGET_RPM = 12.0; 
   const TARGET_DEG_PER_SEC = (TARGET_RPM * 360) / 60;
@@ -72,6 +73,10 @@ export default function App() {
         size = Math.min(vmin * 0.88, 400);
       }
       setRecordSize(size);
+
+      // ★ デバイスサイズに応じて溝の太さを切り替える（スマホ: 2px, PC/タブレット: 5px）
+      const isMobile = w < 768 || isMobLand;
+      setGrooveSize(isMobile ? 2 : 5);
     };
     
     window.addEventListener("resize", checkLayout);
@@ -242,9 +247,9 @@ export default function App() {
         style={{ transform: getRecordTransform() }}
       >
         
-        {/* ★ レコード盤面 (溝のグラデーション幅を 2px -> 3px に広げてMacの滲みを解消) */}
+        {/* ★ レコード盤面 (溝の太さを grooveSize の変数で動的に制御します) */}
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
-          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 1.5px, rgba(255,255,255,0.06) 2.2px, #020202 3px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
+          style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 ${grooveSize / 2}px, rgba(255,255,255,0.06) ${grooveSize * 0.75}px, #020202 ${grooveSize}px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
           <div className="absolute inset-0 rounded-full opacity-[0.20] pointer-events-none z-10" 
                style={{ 
@@ -286,7 +291,6 @@ export default function App() {
                 <div className="absolute top-0 w-full h-full flex flex-col items-center w-full">
                   <div className="absolute inset-[5%] rounded-full border border-white/30" />
                   <div className="absolute top-[7%] flex flex-col items-center w-full">
-                    {/* ★ 形が崩れないよう、FONT_SCALEを用いたピクセル指定でアーチを描画 */}
                     <div 
                       className="border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden"
                       style={{ 
@@ -299,7 +303,6 @@ export default function App() {
                       <span style={{ fontSize: `${13 * FONT_SCALE}px` }} className="text-white font-black italic tracking-tighter leading-none">DDM</span>
                     </div>
                   </div>
-                  {/* ★ CRITERION文字をドームと中心穴の間に絶対配置 */}
                   <div style={{ fontSize: `${7 * FONT_SCALE}px`, top: '38.5%' }} className="absolute w-full text-center font-black tracking-[0.2em] text-white uppercase">CRITERION</div>
                 </div>
               )}
@@ -362,7 +365,7 @@ export default function App() {
         </button>
       )}
 
-      {/* ★ メインパネル（縦画面時は中央下で絶対に消えない、PC横画面時は右下にひっそり配置、スマホ横画面時は非表示） */}
+      {/* ★ メインパネル */}
       <div className={`transition-all duration-700 z-40
         ${!isLandscape 
           ? `relative w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl` 
