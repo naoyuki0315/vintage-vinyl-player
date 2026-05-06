@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.1 - Scale Refinement)
- * Feature: 1.2x scale for mobile landscape, fixed DDM label aspect ratio
- * Fix: Adjusted mobile landscape scaling factor, converted Vee-Jay arch dimensions to JS-based proportional scaling.
+ * Project: Vintage Vinyl Player (v3.4.2 - Fine Tuning)
+ * Feature: Centered CRITERION text, 1.12x scale for mobile landscape
+ * Fix: Adjusted mobile landscape scale factor to 1.12x, absolutely positioned Vee-Jay subtext.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -61,8 +61,8 @@ export default function App() {
 
       let size = 400;
       if (isMobLand) {
-        // スマホ横：高さの1.08倍（元より1.2倍化に調整）
-        size = Math.min(h * 1.08, w - 200);
+        // スマホ横：高さの1.01倍（元より1.12倍化に調整）
+        size = Math.min(h * 1.01, w - 200);
       } else if (isLand) {
         // PC横：高さの0.9倍
         size = Math.min(h * 0.9, w - 450);
@@ -234,7 +234,7 @@ export default function App() {
       <div 
         className={`relative flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-white/5 overflow-visible z-10 transition-all duration-1000 shrink-0
           ${isMobileLandscape 
-            ? 'w-[108vh] aspect-square max-w-[calc(100vw-180px)] m-0' // 117vhから108vh（1.2倍相当）に変更
+            ? 'w-[101vh] aspect-square max-w-[calc(100vw-180px)] m-0' // 1.12倍相当に変更
             : isLandscape 
               ? 'w-[90vh] aspect-square max-w-[calc(100vw-450px)] m-0' 
               : 'w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] mt-4 mb-8'}
@@ -298,8 +298,9 @@ export default function App() {
                     >
                       <span style={{ fontSize: `${13 * FONT_SCALE}px` }} className="text-white font-black italic tracking-tighter leading-none">DDM</span>
                     </div>
-                    <div style={{ fontSize: `${7 * FONT_SCALE}px` }} className="font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
                   </div>
+                  {/* ★ CRITERION文字をドームと中心穴の間に絶対配置 */}
+                  <div style={{ fontSize: `${7 * FONT_SCALE}px`, top: '38.5%' }} className="absolute w-full text-center font-black tracking-[0.2em] text-white uppercase">CRITERION</div>
                 </div>
               )}
               {selectedLabel === "Rsg-Sun" && (
