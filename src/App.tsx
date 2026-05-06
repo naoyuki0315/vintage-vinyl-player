@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.8 - Ultimate Layout & Opacity Tuning)
- * Feature: Full width scaling for portrait mode, configurable opacity for immersive controls.
- * Fix: Removed 400px max-width on portrait to scale to 90vw. Added IMMERSIVE_OPACITY constant for easy UI tuning. Restored overflow-x-hidden to allow scrolling on large portrait screens.
+ * Project: Vintage Vinyl Player (v3.4.9 - Perfect Font Scaling)
+ * Feature: Real-time actual DOM size monitoring for 100% accurate font scaling.
+ * Fix: Introduced ResizeObserver to wrapperRef to ensure font scale dynamically and perfectly matches the actual rendered record size on all devices, completely eliminating mobile landscape aspect-ratio mismatches.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -11,6 +11,7 @@ export default function App() {
   const sePlayRef = useRef<HTMLAudioElement | null>(null); 
   const seStopRef = useRef<HTMLAudioElement | null>(null); 
   const discRef = useRef<HTMLDivElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null); // ★ 実際の描画サイズを取得するためのRef
   const rotationRef = useRef(0);
   const speedRef = useRef(0);
   const rafRef = useRef<number | null>(null);
@@ -24,15 +25,14 @@ export default function App() {
   const [showHelp, setShowHelp] = useState(false);
 
   // ★ 再生中（没入モード）のボタンの透明度をここで簡単に設定できます！
-  // （0.0で完全透明、1.0で完全に不透明。今回は以前の倍の濃さ「0.4」にしています）
   const IMMERSIVE_OPACITY = 0.4;
-  const IMMERSIVE_HOVER_OPACITY = 0.8; // PCでマウスを乗せたときの透明度
+  const IMMERSIVE_HOVER_OPACITY = 0.8; 
 
   // ★ 画面サイズとレコードの実際のピクセルサイズ、溝の太さを監視するステート
   const [isLandscape, setIsLandscape] = useState(false);
   const [isMobileLandscape, setIsMobileLandscape] = useState(false);
   const [recordSize, setRecordSize] = useState(400);
-  const [grooveSize, setGrooveSize] = useState(2); // レコードの溝の太さ（px）
+  const [grooveSize, setGrooveSize] = useState(2); 
 
   const TARGET_RPM = 12.0; 
   const TARGET_DEG_PER_SEC = (TARGET_RPM * 360) / 60;
@@ -54,7 +54,7 @@ export default function App() {
     }
   };
 
-  // ★ 画面の縦横とレコードの理想サイズをリアルタイムで算出
+  // ★ 画面の縦横判定と概算サイズの計算（初期化用）
   useEffect(() => {
     const checkLayout = () => {
       const w = window.innerWidth;
@@ -65,20 +65,16 @@ export default function App() {
       setIsLandscape(isLand);
       setIsMobileLandscape(isMobLand);
 
-      let size = 400;
-      if (isMobLand) {
-        // スマホ横：高さの1.01倍
-        size = Math.min(h * 1.01, w - 200);
-      } else if (isLand) {
-        // PC横：高さの0.9倍
-        size = Math.min(h * 0.9, w - 450);
-      } else {
-        // 縦画面：常に画面の横幅の90%（最大サイズの制限をなくし、タブレットでも横幅いっぱいに広げます）
-        size = w * 0.9;
+      // 初回のチラつき防止用の推測サイズ
+      if (!wrapperRef.current) {
+        let size = 400;
+        if (isMobLand) size = Math.min(h * 1.01, w - 180);
+        else if (isLand) size = Math.min(h * 0.9, w - 450);
+        else size = w * 0.9;
+        setRecordSize(size);
       }
-      setRecordSize(size);
 
-      // ★ デバイスサイズに応じて溝の太さを切り替える（スマホ: 2px, PC/タブレット: 5px）
+      // デバイスサイズに応じて溝の太さを切り替える
       const isMobile = w < 768 || isMobLand;
       setGrooveSize(isMobile ? 2 : 5);
     };
@@ -88,7 +84,23 @@ export default function App() {
     return () => window.removeEventListener("resize", checkLayout);
   }, []);
 
-  // ★ 400pxを基準としたフォントの拡大率（これで文字も完璧に巨大化します）
+  // ★ 実際のレコード要素（wrapperRef）の描画サイズをリアルタイムで監視
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        // scale() アニメーションなどの影響を受けない本来の要素サイズを取得
+        const width = (entry.target as HTMLDivElement).offsetWidth;
+        if (width > 0) {
+          setRecordSize(width);
+        }
+      }
+    });
+    observer.observe(wrapperRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // ★ 400pxを基準としたフォントの拡大率（これで文字も完璧に実寸に比例して巨大化します）
   const FONT_SCALE = recordSize / 400;
 
   useEffect(() => {
@@ -162,7 +174,7 @@ export default function App() {
     return `${baseSize * ratio * FONT_SCALE}px`;
   };
 
-  // レコードの移動やズームを管理する魔法のスタイル
+  // レコードの移動やズームを管理するスタイル
   const getRecordTransform = () => {
     const transforms = [];
     if (isLandscape && !isMobileLandscape) transforms.push('translateX(-10vw)');
@@ -253,8 +265,9 @@ export default function App() {
         </button>
       )}
 
-      {/* ★ レコード全体コンテナ */}
+      {/* ★ レコード全体コンテナ (wrapperRef で実寸を監視) */}
       <div 
+        ref={wrapperRef}
         className={`relative flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-white/5 overflow-visible z-10 transition-all duration-1000 shrink-0
           ${isMobileLandscape 
             ? 'w-[101vh] aspect-square max-w-[calc(100vw-180px)] m-0' 
@@ -265,7 +278,7 @@ export default function App() {
         style={{ transform: getRecordTransform() }}
       >
         
-        {/* ★ レコード盤面 */}
+        {/* レコード盤面 */}
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 ${grooveSize / 2}px, rgba(255,255,255,0.06) ${grooveSize * 0.75}px, #020202 ${grooveSize}px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
