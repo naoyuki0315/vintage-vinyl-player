@@ -134,21 +134,71 @@ export default function App() {
           transform: scale(1.05);
         }
         
-        /* ★ スマホ横画面（ランドスケープ）専用レイアウト */
+        /* ★ スマホ横画面（ランドスケープ）専用レイアウト（CSSのみで再配置） */
         @media screen and (max-height: 500px) and (orientation: landscape) {
-          .landscape-controls {
-            display: flex !important;
+          .immersive-panel, .immersive-panel.playing {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            z-index: 50 !important;
+            pointer-events: none !important;
+            padding: 0 !important;
           }
-          .immersive-panel {
-            display: none !important; /* 横画面時はメインパネルを完全に消す */
+          
+          /* ボタン以外のパネル要素を消す */
+          .hide-on-landscape {
+            display: none !important;
           }
+
+          .btn-container {
+            height: 100% !important;
+            position: relative;
+          }
+
+          /* PLAYボタンを巨大化して左へ */
+          .play-btn {
+            position: fixed !important;
+            left: max(4vw, 20px) !important;
+            right: auto !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 80px !important;
+            height: 80px !important;
+            font-size: 14px !important;
+            pointer-events: auto !important;
+          }
+
+          /* ？ボタンを右へ */
+          .help-btn {
+            position: fixed !important;
+            right: max(4vw, 20px) !important;
+            left: auto !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 56px !important;
+            height: 56px !important;
+            pointer-events: auto !important;
+          }
+
+          /* レコードを画面中央に固定＆ズーム */
           .record-wrapper {
-            margin-bottom: 0 !important;
-            margin-top: 0 !important;
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            margin: 0 !important;
           }
-          /* 横画面時はさらに大きくズーム！ */
+
           .record-wrapper.playing {
-            transform: scale(1.15); 
+            transform: translate(-50%, -50%) scale(1.15) !important; 
           }
         }
       `}</style>
@@ -206,24 +256,6 @@ export default function App() {
           </div>
         </div>
       )}
-
-      {/* ★ スマホ横画面（ランドスケープ）になった時だけ現れる専用のボタン */}
-      <div className="landscape-controls fixed inset-0 z-50 pointer-events-none hidden items-center justify-between px-8 md:px-16 w-full h-full">
-        <button 
-          onClick={togglePlay} 
-          className={`pointer-events-auto w-16 h-16 md:w-20 md:h-20 rounded-full font-black text-sm active:scale-95 transition-all duration-300 uppercase tracking-widest shadow-2xl border border-white/10 flex items-center justify-center
-            ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_40px_rgba(239,68,68,0.4)]' : 'bg-zinc-100 text-black hover:bg-white'}
-          `}>
-          {isPlaying ? "STOP" : "PLAY"}
-        </button>
-        <button 
-          onClick={() => setShowHelp(true)} 
-          className="pointer-events-auto w-12 h-12 md:w-14 md:h-14 bg-zinc-800/80 backdrop-blur-md border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-xl"
-          aria-label="使い方を開く"
-        >
-          <span className="text-xl font-black font-sans">？</span>
-        </button>
-      </div>
 
       {/* レコード全体（再生中はクラスがついてズームします） */}
       <div className={`record-wrapper relative w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible z-10 ${isPlaying ? 'playing' : ''}`}>
@@ -324,25 +356,26 @@ export default function App() {
         </div>
       </div>
 
-      {/* ★ 通常時のメインパネル（横画面になるとCSSで非表示になります） */}
+      {/* ★ 通常時のメインパネル */}
       <div className={`immersive-panel w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl ${isPlaying ? 'playing' : ''}`}>
         
-        {/* 元通りの配置に戻ったPLAY/STOPと？ボタン */}
-        <div className="relative flex justify-center items-center h-16">
-          <button onClick={togglePlay} className={`absolute z-10 w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest shadow-lg ${isPlaying ? 'bg-red-500 text-white' : 'bg-zinc-100 text-black'}`}>
+        {/* CSSで位置を動かすためのクラスを追加したボタン */}
+        <div className="btn-container relative flex justify-center items-center h-16">
+          <button onClick={togglePlay} className={`play-btn absolute z-10 w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest shadow-lg ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.4)]' : 'bg-zinc-100 text-black'}`}>
             {isPlaying ? "STOP" : "PLAY"}
           </button>
           
           <button 
             onClick={() => setShowHelp(true)} 
-            className="absolute right-2 md:right-4 w-10 h-10 md:w-11 md:h-11 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-md"
+            className="help-btn absolute right-2 md:right-4 w-10 h-10 md:w-11 md:h-11 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-md"
             aria-label="使い方を開く"
           >
             <span className="text-base md:text-lg font-black font-sans">？</span>
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        {/* 横画面では非表示になるエリア */}
+        <div className="hide-on-landscape grid grid-cols-2 gap-2">
           {Object.keys(labelStyles).map((style) => (
             <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:bg-black/60'}`}>
               <span className="opacity-50 text-[6px] mb-0.5">Parody of</span>
@@ -350,7 +383,7 @@ export default function App() {
             </button>
           ))}
         </div>
-        <div className="space-y-2 pt-2 border-t border-white/5">
+        <div className="hide-on-landscape space-y-2 pt-2 border-t border-white/5">
           <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <div className="flex gap-2">
