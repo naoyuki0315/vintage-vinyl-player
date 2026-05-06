@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.7 - Touch Device Optimization)
- * Feature: Fixed hover state persistence on touch devices.
- * Fix: Removed Tailwind hover classes on playing buttons and replaced with custom CSS @media (hover: hover) to ensure buttons stay fully transparent on mobile/tablet after tapping.
+ * Project: Vintage Vinyl Player (v3.4.8 - Ultimate Layout & Opacity Tuning)
+ * Feature: Full width scaling for portrait mode, configurable opacity for immersive controls.
+ * Fix: Removed 400px max-width on portrait to scale to 90vw. Added IMMERSIVE_OPACITY constant for easy UI tuning. Restored overflow-x-hidden to allow scrolling on large portrait screens.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -22,6 +22,11 @@ export default function App() {
   const [selectedLabel, setSelectedLabel] = useState("2120");
   
   const [showHelp, setShowHelp] = useState(false);
+
+  // ★ 再生中（没入モード）のボタンの透明度をここで簡単に設定できます！
+  // （0.0で完全透明、1.0で完全に不透明。今回は以前の倍の濃さ「0.4」にしています）
+  const IMMERSIVE_OPACITY = 0.4;
+  const IMMERSIVE_HOVER_OPACITY = 0.8; // PCでマウスを乗せたときの透明度
 
   // ★ 画面サイズとレコードの実際のピクセルサイズ、溝の太さを監視するステート
   const [isLandscape, setIsLandscape] = useState(false);
@@ -62,15 +67,14 @@ export default function App() {
 
       let size = 400;
       if (isMobLand) {
-        // スマホ横：高さの1.01倍（元より1.12倍化に調整）
+        // スマホ横：高さの1.01倍
         size = Math.min(h * 1.01, w - 200);
       } else if (isLand) {
         // PC横：高さの0.9倍
         size = Math.min(h * 0.9, w - 450);
       } else {
-        // 縦画面：画面の短い方の0.88倍（最大400px）
-        const vmin = Math.min(w, h);
-        size = Math.min(vmin * 0.88, 400);
+        // 縦画面：常に画面の横幅の90%（最大サイズの制限をなくし、タブレットでも横幅いっぱいに広げます）
+        size = w * 0.9;
       }
       setRecordSize(size);
 
@@ -155,14 +159,12 @@ export default function App() {
     else if (len <= 20) ratio = 0.7;
     else ratio = 0.55;
     
-    // ベースサイズ × 調整率 × 全体の巨大化スケール
     return `${baseSize * ratio * FONT_SCALE}px`;
   };
 
   // レコードの移動やズームを管理する魔法のスタイル
   const getRecordTransform = () => {
     const transforms = [];
-    // PC横画面の時だけ、中心から左に1/10 (10vw) ずらす
     if (isLandscape && !isMobileLandscape) transforms.push('translateX(-10vw)');
     if (isPlaying && !isLandscape) transforms.push('scale(1.05)');
     if (isPlaying && isLandscape) transforms.push('scale(1.02)');
@@ -170,7 +172,7 @@ export default function App() {
   };
 
   return (
-    <div className={`flex items-center min-h-screen bg-[#050505] text-zinc-400 font-sans select-none overflow-hidden relative transition-all duration-1000
+    <div className={`flex items-center min-h-screen bg-[#050505] text-zinc-400 font-sans select-none overflow-x-hidden relative transition-all duration-1000
       ${isLandscape ? 'flex-row justify-between px-6 md:px-16' : 'flex-col justify-center p-3 md:p-6'}
     `}>
 
@@ -181,7 +183,7 @@ export default function App() {
             background-color: rgba(0, 0, 0, 0.4) !important;
             color: #d4d4d8 !important; /* zinc-300 */
             border-color: rgba(161, 161, 170, 0.6) !important; /* zinc-400 */
-            opacity: 0.8 !important;
+            opacity: ${IMMERSIVE_HOVER_OPACITY} !important;
           }
         }
       `}</style>
@@ -242,9 +244,10 @@ export default function App() {
           onClick={togglePlay} 
           className={`shrink-0 z-50 w-24 h-24 md:w-32 md:h-32 rounded-full font-black text-sm md:text-xl active:scale-95 transition-all duration-700 uppercase tracking-widest flex items-center justify-center backdrop-blur-sm
             ${isPlaying 
-              ? 'bg-black/20 text-zinc-500/50 border border-zinc-500/40 shadow-none opacity-20 immersive-btn-playing scale-100' 
+              ? 'bg-black/20 text-zinc-500/50 border border-zinc-500/40 shadow-none immersive-btn-playing scale-100' 
               : 'bg-zinc-100 text-black border border-white/10 shadow-2xl hover:bg-white scale-[1.05]'}
           `}
+          style={{ opacity: isPlaying ? IMMERSIVE_OPACITY : 1 }}
         >
           {isPlaying ? "STOP" : "PLAY"}
         </button>
@@ -257,12 +260,12 @@ export default function App() {
             ? 'w-[101vh] aspect-square max-w-[calc(100vw-180px)] m-0' 
             : isLandscape 
               ? 'w-[90vh] aspect-square max-w-[calc(100vw-450px)] m-0' 
-              : 'w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] mt-4 mb-8'}
+              : 'w-[90vw] aspect-square mt-4 mb-8'}
         `}
         style={{ transform: getRecordTransform() }}
       >
         
-        {/* ★ レコード盤面 (溝の太さを grooveSize の変数で動的に制御します) */}
+        {/* ★ レコード盤面 */}
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 ${grooveSize / 2}px, rgba(255,255,255,0.06) ${grooveSize * 0.75}px, #020202 ${grooveSize}px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
@@ -375,9 +378,10 @@ export default function App() {
           onClick={() => setShowHelp(true)} 
           className={`shrink-0 z-50 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center font-sans transition-all duration-700 active:scale-95 backdrop-blur-md
             ${isPlaying
-              ? 'bg-black/20 text-zinc-500/50 border border-zinc-500/40 shadow-none opacity-20 immersive-btn-playing'
+              ? 'bg-black/20 text-zinc-500/50 border border-zinc-500/40 shadow-none immersive-btn-playing'
               : 'bg-zinc-800/80 text-zinc-300 hover:text-white hover:bg-zinc-700 border border-zinc-700 shadow-xl'}
           `}
+          style={{ opacity: isPlaying ? IMMERSIVE_OPACITY : 1 }}
           aria-label="使い方を開く"
         >
           <span className="text-2xl md:text-3xl font-black">？</span>
