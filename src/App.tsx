@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.0 - Perfect Scale & Layout)
- * Feature: Restored portrait controls during playback, 1.3x scale for mobile landscape, dynamic proportional font scaling
- * Fix: Added dynamic JS-based proportional scaling via recordSize, shifted PC landscape center.
+ * Project: Vintage Vinyl Player (v3.4.1 - Scale Refinement)
+ * Feature: 1.2x scale for mobile landscape, fixed DDM label aspect ratio
+ * Fix: Adjusted mobile landscape scaling factor, converted Vee-Jay arch dimensions to JS-based proportional scaling.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -61,8 +61,8 @@ export default function App() {
 
       let size = 400;
       if (isMobLand) {
-        // スマホ横：高さの1.17倍（元より1.3倍化）
-        size = Math.min(h * 1.17, w - 200);
+        // スマホ横：高さの1.08倍（元より1.2倍化に調整）
+        size = Math.min(h * 1.08, w - 200);
       } else if (isLand) {
         // PC横：高さの0.9倍
         size = Math.min(h * 0.9, w - 450);
@@ -234,7 +234,7 @@ export default function App() {
       <div 
         className={`relative flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-white/5 overflow-visible z-10 transition-all duration-1000 shrink-0
           ${isMobileLandscape 
-            ? 'w-[117vh] aspect-square max-w-[calc(100vw-180px)] m-0' 
+            ? 'w-[108vh] aspect-square max-w-[calc(100vw-180px)] m-0' // 117vhから108vh（1.2倍相当）に変更
             : isLandscape 
               ? 'w-[90vh] aspect-square max-w-[calc(100vw-450px)] m-0' 
               : 'w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] mt-4 mb-8'}
@@ -286,7 +286,16 @@ export default function App() {
                 <div className="absolute top-0 w-full h-full flex flex-col items-center w-full">
                   <div className="absolute inset-[5%] rounded-full border border-white/30" />
                   <div className="absolute top-[7%] flex flex-col items-center w-full">
-                    <div className="w-[27%] h-[21%] border-[1.2px] border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden">
+                    {/* ★ 形が崩れないよう、FONT_SCALEを用いたピクセル指定でアーチを描画 */}
+                    <div 
+                      className="border-white/60 rounded-t-full flex flex-col items-center justify-end pb-0.5 overflow-hidden"
+                      style={{ 
+                        width: `${38 * FONT_SCALE}px`, 
+                        height: `${30 * FONT_SCALE}px`, 
+                        borderWidth: `${Math.max(1, 1.2 * FONT_SCALE)}px`,
+                        borderStyle: 'solid'
+                      }}
+                    >
                       <span style={{ fontSize: `${13 * FONT_SCALE}px` }} className="text-white font-black italic tracking-tighter leading-none">DDM</span>
                     </div>
                     <div style={{ fontSize: `${7 * FONT_SCALE}px` }} className="font-black tracking-[0.2em] text-white mt-1 uppercase">CRITERION</div>
@@ -355,7 +364,7 @@ export default function App() {
       {/* ★ メインパネル（縦画面時は中央下で絶対に消えない、PC横画面時は右下にひっそり配置、スマホ横画面時は非表示） */}
       <div className={`transition-all duration-700 z-40
         ${!isLandscape 
-          ? `relative w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl` // 再生時に消す処理を削除
+          ? `relative w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl` 
           : ''}
         ${isLandscape && !isMobileLandscape 
           ? `fixed bottom-6 right-6 w-80 bg-zinc-900/30 hover:bg-zinc-900/90 p-5 rounded-[25px] border border-white/10 shadow-2xl backdrop-blur-md opacity-30 hover:opacity-100 space-y-3 ${isPlaying ? 'opacity-10' : ''}` 
