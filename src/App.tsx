@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.1.0 - Ultimate Immersive & Scalable)
- * Feature: Responsive landscape layout for Mobile/Tablet/PC, Scalable tone arm
- * Fix: Removed max-width limits on landscape, changed absolute pixel sizes to percentages for proper scaling.
+ * Project: Vintage Vinyl Player (v3.2.0 - Bulletproof Responsive)
+ * Feature: React-driven layout switching for Mobile/Tablet/PC, Scalable tone arm
+ * Fix: Replaced CSS media queries with Window resize listener to bypass cache/CSS conflicts
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -23,6 +23,10 @@ export default function App() {
   
   const [showHelp, setShowHelp] = useState(false);
 
+  // ★ 画面サイズを監視するステート
+  const [isLandscape, setIsLandscape] = useState(false);
+  const [isMobileLandscape, setIsMobileLandscape] = useState(false);
+
   const TARGET_RPM = 12.0; 
   const TARGET_DEG_PER_SEC = (TARGET_RPM * 360) / 60;
   const VINTAGE_GOLD = "#e2c27b";
@@ -42,6 +46,21 @@ export default function App() {
       alert("Stripeの支払いリンクを正しく設定してください。");
     }
   };
+
+  // ★ 画面の縦横とサイズをリアルタイムで判定
+  useEffect(() => {
+    const checkLayout = () => {
+      const isLand = window.innerWidth > window.innerHeight;
+      setIsLandscape(isLand);
+      // 高さが600px未満の横画面を「スマホの横持ち」と判定
+      setIsMobileLandscape(isLand && window.innerHeight < 600);
+    };
+    
+    window.addEventListener("resize", checkLayout);
+    checkLayout(); // 初回実行
+    
+    return () => window.removeEventListener("resize", checkLayout);
+  }, []);
 
   useEffect(() => {
     if (audioRef.current && audioUrl) {
@@ -114,118 +133,6 @@ export default function App() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#050505] text-zinc-400 p-3 md:p-6 font-sans select-none overflow-x-hidden relative">
       
-      {/* ★ 没入ズームと横画面切り替えのためのCSS */}
-      <style>{`
-        .immersive-panel {
-          transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        /* --- 縦画面（Portrait）時の設定 --- */
-        @media (orientation: portrait) {
-          .immersive-panel.playing {
-            opacity: 0;
-            transform: translateY(30px);
-            pointer-events: none;
-          }
-          .record-wrapper {
-            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
-          }
-          .record-wrapper.playing {
-            transform: scale(1.05);
-          }
-        }
-
-        /* --- 横画面（Landscape）共通：スマホ・タブレット・PC --- */
-        @media (orientation: landscape) {
-          /* 1. レコードのサイズ制限を解除し、画面の高さに合わせて巨大化（PCで約3倍に！） */
-          .record-wrapper {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            margin: 0 !important;
-            width: 90vh !important;
-            height: 90vh !important;
-            max-width: 1400px !important;
-            max-height: 1400px !important;
-            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
-          }
-          .record-wrapper.playing {
-            transform: translate(-50%, -50%) scale(1.05) !important; 
-          }
-
-          /* ボタンコンテナの高さを潰してレイアウト崩れを防ぐ */
-          .btn-container {
-            height: 0 !important;
-            position: static !important;
-          }
-
-          /* 2. PLAYボタンを巨大化して画面左へ分離 */
-          .play-btn {
-            position: fixed !important;
-            left: max(3vw, 20px) !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            width: clamp(70px, 12vh, 120px) !important;
-            height: clamp(70px, 12vh, 120px) !important;
-            font-size: clamp(12px, 2vh, 20px) !important;
-            pointer-events: auto !important;
-            z-index: 100 !important;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6) !important;
-          }
-
-          /* 3. ？ボタンを画面右へ分離 */
-          .help-btn {
-            position: fixed !important;
-            right: max(3vw, 20px) !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            width: clamp(50px, 8vh, 80px) !important;
-            height: clamp(50px, 8vh, 80px) !important;
-            font-size: clamp(18px, 3vh, 28px) !important;
-            pointer-events: auto !important;
-            z-index: 100 !important;
-          }
-
-          /* 4. メインパネルを右下に小さく固定配置（PC/タブレット用） */
-          .immersive-panel {
-            position: fixed !important;
-            bottom: 20px !important;
-            right: 20px !important;
-            width: 340px !important;
-            padding: 20px !important;
-            z-index: 90 !important;
-            transform: none !important;
-            opacity: 0.4; /* デフォルトは半透明で邪魔にならないように */
-          }
-          .immersive-panel:hover, .immersive-panel:focus-within {
-            opacity: 1 !important; /* マウスを乗せたらクッキリ見える */
-          }
-          .immersive-panel.playing {
-            opacity: 0.15; /* 再生中はさらに薄くして没入感を高める */
-          }
-        }
-
-        /* --- スマホ横画面（高さが極端に低い場合）の専用処理 --- */
-        @media screen and (max-height: 500px) and (orientation: landscape) {
-          /* 狭い画面ではパネルの中身（ボタン以外）を完全に消す */
-          .hide-on-landscape {
-            display: none !important;
-          }
-          /* パネル自体の背景や枠線も透明にする */
-          .immersive-panel {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            backdrop-filter: none !important;
-            pointer-events: none !important; /* パネル自体はクリック無効に */
-          }
-          .immersive-panel.playing {
-            opacity: 1 !important; /* ボタンが消えないよう透明化を解除 */
-          }
-        }
-      `}</style>
-
       {showHelp && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-zinc-900 border border-zinc-700 rounded-[30px] p-6 w-full max-w-md max-h-[85vh] overflow-y-auto relative shadow-2xl">
@@ -280,8 +187,35 @@ export default function App() {
         </div>
       )}
 
-      {/* レコード全体（縦画面時は最大400px、横画面時はCSSの魔法で巨大化します） */}
-      <div className={`record-wrapper relative w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] mt-4 mb-8 border border-white/5 overflow-visible z-10 ${isPlaying ? 'playing' : ''}`}>
+      {/* ★ 横画面（Landscape）時のみ現れる、巨大な独立ボタン */}
+      {isLandscape && (
+        <>
+          <button 
+            onClick={togglePlay} 
+            className={`fixed left-6 md:left-16 top-1/2 -translate-y-1/2 z-50 w-24 h-24 md:w-32 md:h-32 rounded-full font-black text-sm md:text-xl active:scale-95 transition-all duration-300 uppercase tracking-widest shadow-2xl border border-white/10 flex items-center justify-center
+              ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_50px_rgba(239,68,68,0.5)] scale-[1.05]' : 'bg-zinc-100 text-black hover:bg-white'}
+            `}>
+            {isPlaying ? "STOP" : "PLAY"}
+          </button>
+          
+          <button 
+            onClick={() => setShowHelp(true)} 
+            className="fixed right-6 md:right-16 top-1/2 -translate-y-1/2 z-50 w-16 h-16 md:w-20 md:h-20 bg-zinc-800/80 backdrop-blur-md border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-xl"
+            aria-label="使い方を開く"
+          >
+            <span className="text-2xl md:text-3xl font-black font-sans">？</span>
+          </button>
+        </>
+      )}
+
+      {/* ★ レコード全体コンテナ（縦画面と横画面でクラスを完全に切り替えます） */}
+      <div className={`relative flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-white/5 overflow-visible z-10 transition-all duration-1000
+        ${isLandscape 
+          ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vh] h-[90vh] max-w-[1200px] max-h-[1200px] m-0' 
+          : 'w-[88vmin] h-[88vmin] max-w-[400px] max-h-[400px] mt-4 mb-8'}
+        ${isPlaying && !isLandscape ? 'scale-[1.05]' : ''}
+        ${isPlaying && isLandscape ? 'scale-[1.02]' : ''}
+      `}>
         
         {/* レコード盤面 */}
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
@@ -363,13 +297,10 @@ export default function App() {
                maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 24.3%, black 24.4%)"
              }} />
 
-        {/* ★ スピンドル（巨大化しても太さが維持されるよう % 指定に変更） */}
         <div className="absolute w-[1.4%] h-[1.4%] rounded-full bg-gradient-to-br from-zinc-200 to-zinc-500 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.8)] pointer-events-none" />
 
-        {/* ★ アームの軸（% 指定に変更） */}
         <div className="absolute rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%", width: "9%", height: "9%" }} />
         
-        {/* ★ アーム（巨大化しても形が崩れないよう、完全 % 指定でレスポンシブ対応） */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
             top: "10.5%", right: "10.5%", width: "75%", height: "2%", 
@@ -382,26 +313,30 @@ export default function App() {
         </div>
       </div>
 
-      {/* ★ メインパネル（横画面では右下に移動したり、スマホでは消えたりします） */}
-      <div className={`immersive-panel w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl relative z-40 backdrop-blur-xl ${isPlaying ? 'playing' : ''}`}>
+      {/* ★ メインパネル（縦画面時は中央下、PC横画面時は右下、スマホ横画面時は非表示） */}
+      <div className={`transition-all duration-700 relative z-40
+        ${!isLandscape 
+          ? `w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl ${isPlaying ? 'opacity-0 translate-y-8 pointer-events-none' : ''}` 
+          : ''}
+        ${isLandscape && !isMobileLandscape 
+          ? `fixed bottom-6 right-6 w-80 bg-zinc-900/30 hover:bg-zinc-900/90 p-5 rounded-[25px] border border-white/10 shadow-2xl backdrop-blur-md opacity-30 hover:opacity-100 space-y-3 ${isPlaying ? 'opacity-10' : ''}` 
+          : ''}
+        ${isMobileLandscape ? 'hidden' : ''}
+      `}>
         
-        {/* 魔法のCSSで位置を動かすためのクラスを追加したボタン */}
-        <div className="btn-container relative flex justify-center items-center h-16">
-          <button onClick={togglePlay} className={`play-btn absolute z-10 w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest shadow-lg ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.4)]' : 'bg-zinc-100 text-black'}`}>
-            {isPlaying ? "STOP" : "PLAY"}
-          </button>
-          
-          <button 
-            onClick={() => setShowHelp(true)} 
-            className="help-btn absolute right-2 md:right-4 w-10 h-10 md:w-11 md:h-11 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-md"
-            aria-label="使い方を開く"
-          >
-            <span className="text-base md:text-lg font-black font-sans">？</span>
-          </button>
-        </div>
+        {/* ★ 縦画面の時だけ表示される、パネル内のPLAY/STOPと？ボタン */}
+        {!isLandscape && (
+          <div className="relative flex justify-center items-center h-16 mb-2">
+            <button onClick={togglePlay} className={`absolute z-10 w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest shadow-lg ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.4)]' : 'bg-zinc-100 text-black'}`}>
+              {isPlaying ? "STOP" : "PLAY"}
+            </button>
+            <button onClick={() => setShowHelp(true)} className="absolute right-2 md:right-4 w-10 h-10 md:w-11 md:h-11 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-md" aria-label="使い方を開く">
+              <span className="text-base md:text-lg font-black font-sans">？</span>
+            </button>
+          </div>
+        )}
 
-        {/* 横画面では非表示になるエリア */}
-        <div className="hide-on-landscape grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {Object.keys(labelStyles).map((style) => (
             <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:bg-black/60'}`}>
               <span className="opacity-50 text-[6px] mb-0.5">Parody of</span>
@@ -409,7 +344,7 @@ export default function App() {
             </button>
           ))}
         </div>
-        <div className="hide-on-landscape space-y-2 pt-2 border-t border-white/5">
+        <div className="space-y-2 pt-2 border-t border-white/5">
           <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <div className="flex gap-2">
