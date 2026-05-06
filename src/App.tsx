@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.9 - Perfect Font Scaling)
- * Feature: Real-time actual DOM size monitoring for 100% accurate font scaling.
- * Fix: Introduced ResizeObserver to wrapperRef to ensure font scale dynamically and perfectly matches the actual rendered record size on all devices, completely eliminating mobile landscape aspect-ratio mismatches.
+ * Project: Vintage Vinyl Player (v3.4.10 - iOS Recording Optimization)
+ * Feature: Optimized audio elements for better compatibility with iOS screen recording.
+ * Fix: Added playsInline and crossOrigin attributes to audio tags to help iOS correctly route system audio during screen capture.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -11,7 +11,7 @@ export default function App() {
   const sePlayRef = useRef<HTMLAudioElement | null>(null); 
   const seStopRef = useRef<HTMLAudioElement | null>(null); 
   const discRef = useRef<HTMLDivElement | null>(null);
-  const wrapperRef = useRef<HTMLDivElement | null>(null); // ★ 実際の描画サイズを取得するためのRef
+  const wrapperRef = useRef<HTMLDivElement | null>(null); 
   const rotationRef = useRef(0);
   const speedRef = useRef(0);
   const rafRef = useRef<number | null>(null);
@@ -24,11 +24,9 @@ export default function App() {
   
   const [showHelp, setShowHelp] = useState(false);
 
-  // ★ 再生中（没入モード）のボタンの透明度をここで簡単に設定できます！
   const IMMERSIVE_OPACITY = 0.4;
   const IMMERSIVE_HOVER_OPACITY = 0.8; 
 
-  // ★ 画面サイズとレコードの実際のピクセルサイズ、溝の太さを監視するステート
   const [isLandscape, setIsLandscape] = useState(false);
   const [isMobileLandscape, setIsMobileLandscape] = useState(false);
   const [recordSize, setRecordSize] = useState(400);
@@ -54,7 +52,6 @@ export default function App() {
     }
   };
 
-  // ★ 画面の縦横判定と概算サイズの計算（初期化用）
   useEffect(() => {
     const checkLayout = () => {
       const w = window.innerWidth;
@@ -65,7 +62,6 @@ export default function App() {
       setIsLandscape(isLand);
       setIsMobileLandscape(isMobLand);
 
-      // 初回のチラつき防止用の推測サイズ
       if (!wrapperRef.current) {
         let size = 400;
         if (isMobLand) size = Math.min(h * 1.01, w - 180);
@@ -74,7 +70,6 @@ export default function App() {
         setRecordSize(size);
       }
 
-      // デバイスサイズに応じて溝の太さを切り替える
       const isMobile = w < 768 || isMobLand;
       setGrooveSize(isMobile ? 2 : 5);
     };
@@ -84,12 +79,10 @@ export default function App() {
     return () => window.removeEventListener("resize", checkLayout);
   }, []);
 
-  // ★ 実際のレコード要素（wrapperRef）の描画サイズをリアルタイムで監視
   useEffect(() => {
     if (!wrapperRef.current) return;
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
-        // scale() アニメーションなどの影響を受けない本来の要素サイズを取得
         const width = (entry.target as HTMLDivElement).offsetWidth;
         if (width > 0) {
           setRecordSize(width);
@@ -100,7 +93,6 @@ export default function App() {
     return () => observer.disconnect();
   }, []);
 
-  // ★ 400pxを基準としたフォントの拡大率（これで文字も完璧に実寸に比例して巨大化します）
   const FONT_SCALE = recordSize / 400;
 
   useEffect(() => {
@@ -174,7 +166,6 @@ export default function App() {
     return `${baseSize * ratio * FONT_SCALE}px`;
   };
 
-  // レコードの移動やズームを管理するスタイル
   const getRecordTransform = () => {
     const transforms = [];
     if (isLandscape && !isMobileLandscape) transforms.push('translateX(-10vw)');
@@ -188,13 +179,12 @@ export default function App() {
       ${isLandscape ? 'flex-row justify-between px-6 md:px-16' : 'flex-col justify-center p-3 md:p-6'}
     `}>
 
-      {/* ★ タッチデバイス（スマホ・タブレット）でタップ時に明るくならないようにするための専用CSS */}
       <style>{`
         @media (hover: hover) {
           .immersive-btn-playing:hover {
             background-color: rgba(0, 0, 0, 0.4) !important;
-            color: #d4d4d8 !important; /* zinc-300 */
-            border-color: rgba(161, 161, 170, 0.6) !important; /* zinc-400 */
+            color: #d4d4d8 !important; 
+            border-color: rgba(161, 161, 170, 0.6) !important; 
             opacity: ${IMMERSIVE_HOVER_OPACITY} !important;
           }
         }
@@ -250,7 +240,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ★ 横画面（Landscape）時：左側の巨大PLAY/STOPボタン */}
       {isLandscape && (
         <button 
           onClick={togglePlay} 
@@ -265,7 +254,6 @@ export default function App() {
         </button>
       )}
 
-      {/* ★ レコード全体コンテナ (wrapperRef で実寸を監視) */}
       <div 
         ref={wrapperRef}
         className={`relative flex items-center justify-center bg-zinc-900 rounded-[40px] md:rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-white/5 overflow-visible z-10 transition-all duration-1000 shrink-0
@@ -278,7 +266,6 @@ export default function App() {
         style={{ transform: getRecordTransform() }}
       >
         
-        {/* レコード盤面 */}
         <div ref={discRef} className="absolute w-[88%] h-[88%] rounded-full shadow-[0_0_60px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden will-change-transform z-10"
           style={{ background: `radial-gradient(circle at center, transparent 37.8%, rgba(0,0,0,0.92) 38.2%, transparent 40%), repeating-radial-gradient(circle at center, #020202 0px, #020202 ${grooveSize / 2}px, rgba(255,255,255,0.06) ${grooveSize * 0.75}px, #020202 ${grooveSize}px), radial-gradient(circle at center, #2a2a2a 0%, #000 100%)` }}>
           
@@ -366,13 +353,10 @@ export default function App() {
                maskImage: "radial-gradient(circle at center, rgba(0,0,0,0.1) 24.3%, black 24.4%)"
              }} />
 
-        {/* スピンドル */}
         <div className="absolute w-[1.4%] h-[1.4%] rounded-full bg-gradient-to-br from-zinc-200 to-zinc-500 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.8)] pointer-events-none" />
 
-        {/* アームの軸 */}
         <div className="absolute rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%", width: "9%", height: "9%" }} />
         
-        {/* アーム */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
             top: "10.5%", right: "10.5%", width: "75%", height: "2%", 
@@ -385,7 +369,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* ★ 横画面（Landscape）時：右側の？ボタン */}
       {isLandscape && (
         <button 
           onClick={() => setShowHelp(true)} 
@@ -401,7 +384,6 @@ export default function App() {
         </button>
       )}
 
-      {/* ★ メインパネル */}
       <div className={`transition-all duration-700 z-40
         ${!isLandscape 
           ? `relative w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl` 
@@ -412,7 +394,6 @@ export default function App() {
         ${isMobileLandscape ? 'hidden' : ''}
       `}>
         
-        {/* ★ 縦画面の時だけ表示される、パネル内のPLAY/STOPと？ボタン */}
         {!isLandscape && (
           <div className="relative flex justify-center items-center h-16 mb-2">
             <button onClick={togglePlay} className={`absolute z-10 w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest shadow-lg ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.4)]' : 'bg-zinc-100 text-black'}`}>
@@ -439,6 +420,7 @@ export default function App() {
             
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl hover:bg-zinc-700 transition-colors">
               LOAD MUSIC
+              {/* ★ playsInline 属性と crossOrigin 属性を追加 */}
               <input 
                 type="file" 
                 accept="audio/*, video/*, .mp3, .wav, .m4a, .mp4, .mov" 
@@ -476,9 +458,10 @@ export default function App() {
         </div>
       </div>
       
-      <audio ref={audioRef} src={audioUrl || undefined} preload="auto" onEnded={() => setIsPlaying(false)} />
-      <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" />
-      <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" />
+      {/* ★ playsInline 属性と crossOrigin 属性を追加してiOSの画面録画互換性を向上 */}
+      <audio ref={audioRef} src={audioUrl || undefined} preload="auto" playsInline crossOrigin="anonymous" onEnded={() => setIsPlaying(false)} />
+      <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" playsInline crossOrigin="anonymous" />
+      <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" playsInline crossOrigin="anonymous" />
     </div>
   );
 }
