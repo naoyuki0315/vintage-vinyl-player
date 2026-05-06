@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.5 - Immersive Controls)
- * Feature: Fade out landscape controls during playback for maximum immersion.
- * Fix: Changed landscape PLAY/STOP and Help buttons to become highly transparent and darkly colored when isPlaying is true.
+ * Project: Vintage Vinyl Player (v3.4.6 - UI Refinement)
+ * Feature: Improved visibility of immersive landscape controls.
+ * Fix: Removed global opacity on landscape controls during playback. Instead, applied specific alpha channel colors to border and text to keep the circular outline faintly visible.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -230,7 +230,7 @@ export default function App() {
           onClick={togglePlay} 
           className={`shrink-0 z-50 w-24 h-24 md:w-32 md:h-32 rounded-full font-black text-sm md:text-xl active:scale-95 transition-all duration-700 uppercase tracking-widest flex items-center justify-center backdrop-blur-sm
             ${isPlaying 
-              ? 'bg-black/10 text-zinc-600 border border-zinc-800/30 shadow-none opacity-20 hover:opacity-80 scale-100' 
+              ? 'bg-black/20 text-zinc-500/50 border border-zinc-500/40 shadow-none hover:bg-black/40 hover:text-zinc-300 hover:border-zinc-400 scale-100' 
               : 'bg-zinc-100 text-black border border-white/10 shadow-2xl hover:bg-white scale-[1.05]'}
           `}
         >
@@ -363,7 +363,7 @@ export default function App() {
           onClick={() => setShowHelp(true)} 
           className={`shrink-0 z-50 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center font-sans transition-all duration-700 active:scale-95 backdrop-blur-md
             ${isPlaying
-              ? 'bg-black/10 text-zinc-600 border border-zinc-800/30 shadow-none opacity-20 hover:opacity-80'
+              ? 'bg-black/20 text-zinc-500/50 border border-zinc-500/40 shadow-none hover:bg-black/40 hover:text-zinc-300 hover:border-zinc-400'
               : 'bg-zinc-800/80 text-zinc-300 hover:text-white hover:bg-zinc-700 border border-zinc-700 shadow-xl'}
           `}
           aria-label="使い方を開く"
