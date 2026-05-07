@@ -225,7 +225,7 @@ export default function App() {
 
               <div>
                 <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">☕️ 開発者を応援する</h3>
-                <p>気に入っていただけたら、「TIP 100 JPY」ボタンから缶コーヒー代の投げ銭（100円）をお待ちしています！深夜のブルースの糧になります。</p>
+                <p>気に入っていただけたら、「缶コーヒーを奢る」ボタンから缶コーヒー代の投げ銭をお待ちしています！深夜のブルースの糧になります。</p>
               </div>
 
             </div>
@@ -420,7 +420,6 @@ export default function App() {
             
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl hover:bg-zinc-700 transition-colors">
               LOAD MUSIC
-              {/* ★ playsInline 属性と crossOrigin 属性を追加 */}
               <input 
                 type="file" 
                 accept="audio/*, video/*, .mp3, .wav, .m4a, .mp4, .mov" 
@@ -450,15 +449,15 @@ export default function App() {
               />
             </label>
             
+            {/* ★ ここを修正しました */}
             <button onClick={handleDonation} className="flex-1 h-12 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center text-amber-500 transition-all active:scale-95">
-              <span className="text-[9px] font-black tracking-widest">TIP 100 JPY</span>
-              <span className="text-[7px] opacity-70">缶コーヒーをおごる</span>
+              <span className="text-[9px] font-black tracking-widest">缶コーヒーを奢る</span>
+              <span className="text-[7px] font-normal opacity-70 tracking-widest mt-0.5">（投げ銭）</span>
             </button>
           </div>
         </div>
       </div>
       
-      {/* ★ playsInline 属性と crossOrigin 属性を追加してiOSの画面録画互換性を向上 */}
       <audio ref={audioRef} src={audioUrl || undefined} preload="auto" playsInline crossOrigin="anonymous" onEnded={() => setIsPlaying(false)} />
       <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" playsInline crossOrigin="anonymous" />
       <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" playsInline crossOrigin="anonymous" />
