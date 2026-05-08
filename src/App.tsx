@@ -370,7 +370,7 @@ export default function App() {
           style={{ 
             top: "10.5%", right: "10.5%", width: "75%", height: "2%", 
             transformOrigin: "center right", 
-            transform: `rotate(${isPlaying ? -80 : -90}deg)`,
+            transform: `rotate(${isPlaying ? -80.5 : -90}deg)`,
             filter: "drop-shadow(-8px 12px 6px rgba(0,0,0,0.6))"
           }}>
           <div className="w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full" style={{ height: "40%" }} />
