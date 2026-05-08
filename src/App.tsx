@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.11 - Cartridge & Arm Tuning)
- * Feature: Adjusted stylus (cartridge) dimensions and arm rotation angle.
- * Fix: Scaled cartridge width to 1.35x and height to 0.7x for a sleeker look. Increased playback rotation angle from -81deg to -80deg for deeper groove tracking.
+ * Project: Vintage Vinyl Player (v3.5.0 - Senior Friendly Update)
+ * Feature: Added preset sample music buttons and updated help guide for Voice Memos.
+ * Fix: Added loadPreset function to allow users without music files to easily enjoy the player. Updated help UI to suggest using voice memos for an emotional analog experience.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -133,13 +133,13 @@ export default function App() {
             if (sePlayRef.current) sePlayRef.current.pause();
           }, 300);
         } 
-      }, 400); 
+      }, 500); 
       setTimeout(() => { 
         if (audioRef.current) {
           audioRef.current.currentTime = 0; 
           audioRef.current.play().catch(e => console.log("Play error:", e)); 
         }
-      }, 1000); 
+      }, 1100); 
     } else {
       if (audioRef.current) audioRef.current.pause(); 
       if (seStopRef.current) { 
@@ -216,10 +216,19 @@ export default function App() {
 
               <div>
                 <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">🎧 自分の曲をセットする</h3>
-                <p className="mb-3">「LOAD MUSIC」ボタンから、スマホやPC内の音楽・動画ファイルを選べます。</p>
-                <div className="bg-red-500/10 border border-red-500/20 p-3 md:p-4 rounded-2xl text-red-200 shadow-inner">
-                  <strong className="text-red-400 block mb-2 text-sm">⚠️ アップロード時のご注意</strong>
-                  <p className="mb-2">ブラウザがフリーズするのを防ぐため、ファイルの容量に<strong className="text-white">【20MBまで】</strong>の制限を設けています。</p>
+                <p className="mb-2">「LOAD MUSIC」ボタンから、スマホやPC内の音楽・動画ファイルを選べます。</p>
+                
+                <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-2xl text-blue-200 shadow-inner mb-3">
+                  <strong className="text-blue-300 block mb-1.5 text-sm">💡 エモい遊び方（ボイスメモ）</strong>
+                  <p className="text-[11px] leading-relaxed">
+                    スマホの<strong className="text-white">「ボイスメモ」</strong>アプリで録音した日常の音や、お孫さんの声などを読み込ませるのがおすすめです。<br/>
+                    <span className="text-blue-300/80 mt-1 block">※ マイク越しに「空気を一回挟む」ことで、絶妙なローファイ感（アナログな粗さ）が加わり、レコードのノイズと相まって最高にエモい雰囲気になります！</span>
+                  </p>
+                </div>
+
+                <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-2xl text-red-200 shadow-inner">
+                  <strong className="text-red-400 block mb-1 text-xs">⚠️ 容量のご注意</strong>
+                  <p className="text-[10px]">ブラウザがフリーズするのを防ぐため、ファイルの容量は<strong className="text-white">【20MBまで】</strong>に制限しています。</p>
                 </div>
               </div>
 
@@ -357,16 +366,14 @@ export default function App() {
 
         <div className="absolute rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%", width: "9%", height: "9%" }} />
         
-        {/* ★ アーム部分の角度と針（カートリッジ）のサイズを調整しました */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
             top: "10.5%", right: "10.5%", width: "75%", height: "2%", 
             transformOrigin: "center right", 
-            transform: `rotate(${isPlaying ? -80 : -90}deg)`, // -81度から-80度へ深く変更
+            transform: `rotate(${isPlaying ? -80 : -90}deg)`,
             filter: "drop-shadow(-8px 12px 6px rgba(0,0,0,0.6))"
           }}>
           <div className="w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full" style={{ height: "40%" }} />
-          {/* width を 12% * 1.35 = 16.2%, height を 400% * 0.7 = 280% に変更 */}
           <div className="absolute left-0 top-1/2 -translate-y-1/2 bg-zinc-950 rounded-sm" style={{ width: "16.2%", height: "280%", transform: "rotate(22deg)", transformOrigin: "center right" }} />
         </div>
       </div>
@@ -418,6 +425,7 @@ export default function App() {
         <div className="space-y-2 pt-2 border-t border-white/5">
           <input type="text" value={bandName} onChange={(e) => setBandName(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
+          
           <div className="flex gap-2">
             
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl hover:bg-zinc-700 transition-colors">
