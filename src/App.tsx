@@ -133,13 +133,13 @@ export default function App() {
             if (sePlayRef.current) sePlayRef.current.pause();
           }, 300);
         } 
-      }, 600); 
+      }, 700); 
       setTimeout(() => { 
         if (audioRef.current) {
           audioRef.current.currentTime = 0; 
           audioRef.current.play().catch(e => console.log("Play error:", e)); 
         }
-      }, 1200); 
+      }, 1300); 
     } else {
       if (audioRef.current) audioRef.current.pause(); 
       if (seStopRef.current) { 
@@ -221,8 +221,8 @@ export default function App() {
                 <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-2xl text-blue-200 shadow-inner mb-3">
                   <strong className="text-blue-300 block mb-1.5 text-sm">💡 エモい遊び方（ボイスメモ）</strong>
                   <p className="text-[11px] leading-relaxed">
-                    スマホの<strong className="text-white">「ボイスメモ」</strong>アプリで好きな音源を録音して読み込ませるのがおすすめです。<br/>
-                    <span className="text-blue-300/80 mt-1 block">※ マイク越しに「空気を一回挟む」ことで、絶妙なローファイ感（アナログな粗さ）が加わり、レコードのノイズと相まって最高にエモい雰囲気になります！</span>
+                    好きな音源を、あえてスマホの<strong className="text-white">「ボイスメモ」</strong>等で録音し直して読み込ませるのがおすすめです。<br/>
+                    <span className="text-blue-300/80 mt-1 block">※ マイク越しに「空気を一回挟む」ことでわざと音質が落ち、絶妙なローファイ感（アナログな粗さ）が生まれます。レコードの見た目と相まって最高にエモい雰囲気になります！</span>
                   </p>
                 </div>
 
