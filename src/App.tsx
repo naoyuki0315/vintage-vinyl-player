@@ -1,7 +1,7 @@
 /**
- * Project: Vintage Vinyl Player (v3.4.10 - iOS Recording Optimization)
- * Feature: Optimized audio elements for better compatibility with iOS screen recording.
- * Fix: Added playsInline and crossOrigin attributes to audio tags to help iOS correctly route system audio during screen capture.
+ * Project: Vintage Vinyl Player (v3.4.11 - Cartridge & Arm Tuning)
+ * Feature: Adjusted stylus (cartridge) dimensions and arm rotation angle.
+ * Fix: Scaled cartridge width to 1.35x and height to 0.7x for a sleeker look. Increased playback rotation angle from -81deg to -80deg for deeper groove tracking.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -357,15 +357,17 @@ export default function App() {
 
         <div className="absolute rounded-full bg-zinc-800 z-20 shadow-xl" style={{ top: "6%", right: "6%", width: "9%", height: "9%" }} />
         
+        {/* ★ アーム部分の角度と針（カートリッジ）のサイズを調整しました */}
         <div className="absolute transition-transform duration-1000 z-30 flex items-center justify-end"
           style={{ 
             top: "10.5%", right: "10.5%", width: "75%", height: "2%", 
             transformOrigin: "center right", 
-            transform: `rotate(${isPlaying ? -81 : -90}deg)`,
+            transform: `rotate(${isPlaying ? -80 : -90}deg)`, // -81度から-80度へ深く変更
             filter: "drop-shadow(-8px 12px 6px rgba(0,0,0,0.6))"
           }}>
           <div className="w-full bg-gradient-to-l from-zinc-600 via-zinc-300 to-zinc-500 rounded-full" style={{ height: "40%" }} />
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 bg-zinc-950 rounded-sm" style={{ width: "12%", height: "400%", transform: "rotate(22deg)", transformOrigin: "center right" }} />
+          {/* width を 12% * 1.35 = 16.2%, height を 400% * 0.7 = 280% に変更 */}
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 bg-zinc-950 rounded-sm" style={{ width: "16.2%", height: "280%", transform: "rotate(22deg)", transformOrigin: "center right" }} />
         </div>
       </div>
 
@@ -449,7 +451,6 @@ export default function App() {
               />
             </label>
             
-            {/* ★ 英語をメインにして世界観をキープしつつ、日本語で補足するデザインに変更しました */}
             <button onClick={handleDonation} className="flex-1 h-12 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center text-amber-500 transition-all active:scale-95">
               <span className="text-[9px] font-black tracking-widest uppercase">Buy Me a Coffee</span>
               <span className="text-[6.5px] font-normal opacity-70 tracking-widest mt-0.5">缶コーヒーを奢る(投げ銭)</span>
