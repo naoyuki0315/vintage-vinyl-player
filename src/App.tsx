@@ -1,7 +1,6 @@
 /**
- * Project: Vintage Vinyl Player (v3.5.0 - Senior Friendly Update)
- * Feature: Added preset sample music buttons and updated help guide for Voice Memos.
- * Fix: Added loadPreset function to allow users without music files to easily enjoy the player. Updated help UI to suggest using voice memos for an emotional analog experience.
+ * Project: Vintage Vinyl Player
+ * Feature: Doubled the font size of the song title and band name on the record label.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -346,8 +345,9 @@ export default function App() {
             </div>
 
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[16%] px-1">
-              <div style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: getDynamicFontSize(displaySongTitle, 6) }} className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1">{displaySongTitle}</div>
-              <div style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: getDynamicFontSize(bandName, 5.2) }} className="font-bold uppercase text-center mb-1.5">{bandName}</div>
+              {/* 曲名とバンド名のサイズを2倍（6->12, 5.2->10.4）に変更しました */}
+              <div style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: getDynamicFontSize(displaySongTitle, 12) }} className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1">{displaySongTitle}</div>
+              <div style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: getDynamicFontSize(bandName, 10.4) }} className="font-bold uppercase text-center mb-1.5">{bandName}</div>
               <div style={{ color: "rgba(255,255,255,0.85)", fontSize: `${3 * FONT_SCALE}px` }} className="font-black tracking-[0.22em] uppercase text-center opacity-85">{labelStyles[selectedLabel].subText}</div>
             </div>
             
