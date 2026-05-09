@@ -347,8 +347,8 @@ export default function App() {
             </div>
 
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[16%] px-1">
-              {/* 曲名のサイズをPC/タブレットのみ9.18(10%減)にし、渋いセリフフォントに変更。バンド名は1.7倍(8.84)のまま */}
-              <div style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: getDynamicFontSize(displaySongTitle, isLargeScreen ? 9.18 : 6) }} className={`${isLargeScreen ? 'font-serif font-bold tracking-normal' : 'font-black tracking-tight'} whitespace-nowrap overflow-hidden w-[90%] text-center mb-1`}>{displaySongTitle}</div>
+              {/* 曲名のフォントをPC/タブレットの時だけ 'Arial Black' になるように変更しました */}
+              <div style={{ fontFamily: isLargeScreen ? '"Arial Black", Gadget, sans-serif' : undefined, color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: getDynamicFontSize(displaySongTitle, isLargeScreen ? 9.18 : 6) }} className={`${isLargeScreen ? 'tracking-normal' : 'font-black tracking-tight'} whitespace-nowrap overflow-hidden w-[90%] text-center mb-1`}>{displaySongTitle}</div>
               <div style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: getDynamicFontSize(bandName, isLargeScreen ? 8.84 : 5.2) }} className="font-bold uppercase text-center mb-1.5">{bandName}</div>
               <div style={{ color: "rgba(255,255,255,0.85)", fontSize: `${3 * FONT_SCALE}px` }} className="font-black tracking-[0.22em] uppercase text-center opacity-85">{labelStyles[selectedLabel].subText}</div>
             </div>
