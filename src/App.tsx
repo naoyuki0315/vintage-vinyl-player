@@ -1,3 +1,4 @@
+Vintage Vinyl Player
 /**
  * Project: Vintage Vinyl Player
  * Feature: Doubled the font size of the song title and band name on the record label.
