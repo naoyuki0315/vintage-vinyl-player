@@ -28,6 +28,7 @@ export default function App() {
 
   const [isLandscape, setIsLandscape] = useState(false);
   const [isMobileLandscape, setIsMobileLandscape] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
   const [recordSize, setRecordSize] = useState(400);
   const [grooveSize, setGrooveSize] = useState(2); 
 
@@ -71,6 +72,7 @@ export default function App() {
 
       const isMobile = w < 768 || isMobLand;
       setGrooveSize(isMobile ? 2 : 5);
+      setIsLargeScreen(!isMobile);
     };
     
     window.addEventListener("resize", checkLayout);
@@ -345,9 +347,9 @@ export default function App() {
             </div>
 
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[16%] px-1">
-              {/* 曲名とバンド名のサイズを2倍（6->12, 5.2->10.4）に変更しました */}
-              <div style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: getDynamicFontSize(displaySongTitle, 12) }} className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1">{displaySongTitle}</div>
-              <div style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: getDynamicFontSize(bandName, 10.4) }} className="font-bold uppercase text-center mb-1.5">{bandName}</div>
+              {/* 曲名とバンド名のサイズをPC/タブレットのみ2倍にし、スマホは元のサイズに戻しました */}
+              <div style={{ color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: getDynamicFontSize(displaySongTitle, isLargeScreen ? 12 : 6) }} className="font-black tracking-tight whitespace-nowrap overflow-hidden w-[90%] text-center mb-1">{displaySongTitle}</div>
+              <div style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: getDynamicFontSize(bandName, isLargeScreen ? 10.4 : 5.2) }} className="font-bold uppercase text-center mb-1.5">{bandName}</div>
               <div style={{ color: "rgba(255,255,255,0.85)", fontSize: `${3 * FONT_SCALE}px` }} className="font-black tracking-[0.22em] uppercase text-center opacity-85">{labelStyles[selectedLabel].subText}</div>
             </div>
             
