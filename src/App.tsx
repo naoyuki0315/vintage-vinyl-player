@@ -1,7 +1,6 @@
-
 /**
- * Project: Vintage Vinyl Player
- * Feature: Doubled the font size of the song title and band name on the record label.
+ * プロジェクト: Vintage Vinyl Player
+ * 機能追加: 寄付リンクをOFUSE（PayPay対応）に更新
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -44,12 +43,11 @@ export default function App() {
     "Rsg-Sun": { color: "#facc15", textColor: "#3f2b1d", subText: "MEMPHIS, TENNESSEE" },
   };
 
+  // 決済リンクをOFUSEに更新
   const handleDonation = () => {
-    const paymentLink = "https://buy.stripe.com/eVq5kD034glf4eFgWpdIA00"; 
-    if (paymentLink && paymentLink.startsWith("https://buy.stripe.com")) {
+    const paymentLink = "https://ofuse.me/212d6bf1"; 
+    if (paymentLink) {
       window.location.href = paymentLink;
-    } else {
-      alert("Stripeの支払いリンクを正しく設定してください。");
     }
   };
 
@@ -139,7 +137,7 @@ export default function App() {
       setTimeout(() => { 
         if (audioRef.current) {
           audioRef.current.currentTime = 0; 
-          audioRef.current.play().catch(e => console.log("Play error:", e)); 
+          audioRef.current.play().catch(e => console.log("再生エラー:", e)); 
         }
       }, 1300); 
     } else {
@@ -211,32 +209,26 @@ export default function App() {
               <div>
                 <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">🎵 基本的な遊び方</h3>
                 <ul className="list-disc pl-4 space-y-1">
-                  <li><strong className="text-zinc-100">PLAY / STOP:</strong> レコードの再生・停止を操作します。再生中はレコードがズームして没入モードになります。</li>
-                  <li><strong className="text-zinc-100">マルチデバイス横画面:</strong> スマホ・タブレット・PCで横画面にすると、専用のフルスクリーンプレイヤーになり、レコードが最大化されます。</li>
+                  <li><strong className="text-zinc-100">再生 / 停止:</strong> レコードの再生・停止を操作します。再生中はレコードがズームして没入モードになります。</li>
+                  <li><strong className="text-zinc-100">横画面モード:</strong> スマホ・タブレット・PCで横画面にすると、フルスクリーンプレイヤーになります。</li>
                 </ul>
               </div>
 
               <div>
                 <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">🎧 自分の曲をセットする</h3>
-                <p className="mb-2">「LOAD MUSIC」ボタンから、スマホやPC内の音楽・動画ファイルを選べます。</p>
+                <p className="mb-2">「LOAD MUSIC」ボタンから、デバイス内の音声ファイルを選べます。</p>
                 
                 <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-2xl text-blue-200 shadow-inner mb-3">
-                  <strong className="text-blue-300 block mb-1.5 text-sm">💡 エモい遊び方（ボイスメモ）</strong>
+                  <strong className="text-blue-300 block mb-1.5 text-sm">💡 エモい遊び方</strong>
                   <p className="text-[11px] leading-relaxed">
-                    好きな音源を、あえてスマホの<strong className="text-white">「ボイスメモ」</strong>等で録音し直して読み込ませるのがおすすめです。<br/>
-                    <span className="text-blue-300/80 mt-1 block">※ マイク越しに「空気を一回挟む」ことでわざと音質が落ち、絶妙なローファイ感（アナログな粗さ）が生まれます。レコードの見た目と相まって最高にエモい雰囲気になります！</span>
+                    好きな音源を、あえてスマホの「ボイスメモ」等で録音し直して読み込ませてみてください。アナログな粗さが生まれて最高にエモい雰囲気になります！
                   </p>
-                </div>
-
-                <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-2xl text-red-200 shadow-inner">
-                  <strong className="text-red-400 block mb-1 text-xs">⚠️ 容量のご注意</strong>
-                  <p className="text-[10px]">ブラウザがフリーズするのを防ぐため、ファイルの容量は<strong className="text-white">【20MBまで】</strong>に制限しています。</p>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">☕️ 開発者を応援する</h3>
-                <p>気に入っていただけたら、「BUY ME A COFFEE」ボタンからサポートをお待ちしています！深夜のブルースの糧になります。</p>
+                <h3 className="font-bold text-white border-b border-zinc-800 pb-1.5 mb-2">☕️ サポートについて</h3>
+                <p>気に入っていただけたら、「コーヒーを奢る」ボタンからサポートをお願いします！PayPay・カード決済が利用可能です。</p>
               </div>
 
             </div>
@@ -348,7 +340,6 @@ export default function App() {
             </div>
 
             <div className="z-10 flex flex-col items-center justify-end w-full h-full pb-[16%] px-1">
-              {/* 曲名のフォントをPC/タブレットの時だけ 'Arial Black' になるように変更しました */}
               <div style={{ fontFamily: isLargeScreen ? '"Arial Black", Gadget, sans-serif' : undefined, color: selectedLabel === "2120" ? "#111" : labelStyles[selectedLabel].textColor, fontSize: getDynamicFontSize(displaySongTitle, isLargeScreen ? 9.18 : 6) }} className={`${isLargeScreen ? 'tracking-normal' : 'font-black tracking-tight'} whitespace-nowrap overflow-hidden w-[90%] text-center mb-1`}>{displaySongTitle}</div>
               <div style={{ color: selectedLabel === "2120" ? VINTAGE_GOLD : "rgba(255,255,255,0.9)", fontSize: getDynamicFontSize(bandName, isLargeScreen ? 8.84 : 5.2) }} className="font-bold uppercase text-center mb-1.5">{bandName}</div>
               <div style={{ color: "rgba(255,255,255,0.85)", fontSize: `${3 * FONT_SCALE}px` }} className="font-black tracking-[0.22em] uppercase text-center opacity-85">{labelStyles[selectedLabel].subText}</div>
@@ -381,21 +372,6 @@ export default function App() {
         </div>
       </div>
 
-      {isLandscape && (
-        <button 
-          onClick={() => setShowHelp(true)} 
-          className={`shrink-0 z-50 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center font-sans transition-all duration-700 active:scale-95 backdrop-blur-md
-            ${isPlaying
-              ? 'bg-black/20 text-zinc-500/50 border border-zinc-500/40 shadow-none immersive-btn-playing'
-              : 'bg-zinc-800/80 text-zinc-300 hover:text-white hover:bg-zinc-700 border border-zinc-700 shadow-xl'}
-          `}
-          style={{ opacity: isPlaying ? IMMERSIVE_OPACITY : 1 }}
-          aria-label="使い方を開く"
-        >
-          <span className="text-2xl md:text-3xl font-black">？</span>
-        </button>
-      )}
-
       <div className={`transition-all duration-700 z-40
         ${!isLandscape 
           ? `relative w-full max-w-sm space-y-4 bg-zinc-900/60 p-5 md:p-7 rounded-[35px] border border-white/5 shadow-2xl backdrop-blur-xl` 
@@ -406,17 +382,6 @@ export default function App() {
         ${isMobileLandscape ? 'hidden' : ''}
       `}>
         
-        {!isLandscape && (
-          <div className="relative flex justify-center items-center h-16 mb-2">
-            <button onClick={togglePlay} className={`absolute z-10 w-14 h-14 md:w-16 md:h-16 rounded-full font-black text-[10px] active:scale-95 transition-all uppercase tracking-widest shadow-lg ${isPlaying ? 'bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.4)]' : 'bg-zinc-100 text-black'}`}>
-              {isPlaying ? "STOP" : "PLAY"}
-            </button>
-            <button onClick={() => setShowHelp(true)} className="absolute right-2 md:right-4 w-10 h-10 md:w-11 md:h-11 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all active:scale-95 shadow-md" aria-label="使い方を開く">
-              <span className="text-base md:text-lg font-black font-sans">？</span>
-            </button>
-          </div>
-        )}
-
         <div className="grid grid-cols-2 gap-2">
           {Object.keys(labelStyles).map((style) => (
             <button key={style} onClick={() => setSelectedLabel(style)} className={`py-2.5 rounded-xl text-[8px] md:text-[9px] font-black border transition-all uppercase tracking-tight flex flex-col items-center justify-center ${selectedLabel === style ? 'bg-white text-black border-white' : 'bg-black/40 text-zinc-600 border-zinc-800 hover:bg-black/60'}`}>
@@ -430,30 +395,11 @@ export default function App() {
           <input type="text" value={songTitle} onChange={(e) => setSongTitle(e.target.value.toUpperCase())} className="bg-black/60 border border-zinc-800 p-3 rounded-xl text-zinc-100 text-[11px] w-full outline-none focus:border-zinc-500" />
           
           <div className="flex gap-2">
-            
             <label className="flex-1 h-12 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded-xl flex items-center justify-center cursor-pointer text-[9px] font-black shadow-xl hover:bg-zinc-700 transition-colors">
               LOAD MUSIC
-              <input 
-                type="file" 
-                accept="audio/*, video/*, .mp3, .wav, .m4a, .mp4, .mov" 
-                className="hidden" 
-                onChange={(e) => { 
+              <input type="file" accept="audio/*" className="hidden" onChange={(e) => { 
                   const f = e.target.files?.[0]; 
                   if (f) { 
-                    const maxSize = 20 * 1024 * 1024;
-                    if (f.size > maxSize) {
-                      alert("ファイルが大きすぎます！20MB以下（8分くらいを想定）のファイルを選んでください。");
-                      return;
-                    }
-                    const isMedia = f.type.startsWith('audio/') || f.type.startsWith('video/') || f.name.toLowerCase().endsWith('.m4a');
-                    if (!isMedia) {
-                      alert("音声または動画ファイルのみセット可能です！");
-                      return;
-                    }
-                    if (isPlaying) {
-                      setIsPlaying(false);
-                      if (audioRef.current) audioRef.current.pause();
-                    }
                     const newUrl = URL.createObjectURL(f);
                     setAudioUrl(newUrl); 
                     setSongTitle(f.name.replace(/\.[^/.]+$/, "").toUpperCase()); 
@@ -463,16 +409,16 @@ export default function App() {
             </label>
             
             <button onClick={handleDonation} className="flex-1 h-12 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl flex flex-col items-center justify-center text-amber-500 transition-all active:scale-95">
-              <span className="text-[9px] font-black tracking-widest uppercase">Buy Me a Coffee</span>
-              <span className="text-[6.5px] font-normal opacity-70 tracking-widest mt-0.5">缶コーヒーを奢る(投げ銭)</span>
+              <span className="text-[9px] font-black tracking-widest uppercase">Support Me</span>
+              <span className="text-[6.5px] font-normal opacity-70 tracking-widest mt-0.5">PayPay・カードで応援</span>
             </button>
           </div>
         </div>
       </div>
       
-      <audio ref={audioRef} src={audioUrl || undefined} preload="auto" playsInline crossOrigin="anonymous" onEnded={() => setIsPlaying(false)} />
-      <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" playsInline crossOrigin="anonymous" />
-      <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" playsInline crossOrigin="anonymous" />
+      <audio ref={audioRef} src={audioUrl || undefined} preload="auto" playsInline onEnded={() => setIsPlaying(false)} />
+      <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" />
+      <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" />
     </div>
   );
 }
