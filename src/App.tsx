@@ -1,4 +1,3 @@
-
 /**
  * Project: Vintage Vinyl Player
  * Feature: Doubled the font size of the song title and band name on the record label.
@@ -16,7 +15,7 @@ export default function App() {
   const speedRef = useRef(0);
   const rafRef = useRef<number | null>(null);
 
-  const [audioUrl, setAudioUrl] = useState<string | null>("/my_babe.mp3");
+  const [audioUrl, setAudioUrl] = useState<string | null>(`${import.meta.env.BASE_URL}my_babe.mp3`);
   const [isPlaying, setIsPlaying] = useState(false);
   const [bandName, setBandName] = useState("DROP DOWN MAMA");
   const [songTitle, setSongTitle] = useState("MY BABE");
@@ -471,8 +470,8 @@ export default function App() {
       </div>
       
       <audio ref={audioRef} src={audioUrl || undefined} preload="auto" playsInline crossOrigin="anonymous" onEnded={() => setIsPlaying(false)} />
-      <audio ref={sePlayRef} src="/needle-drop.mp3" preload="auto" playsInline crossOrigin="anonymous" />
-      <audio ref={seStopRef} src="/needle-up.mp3" preload="auto" playsInline crossOrigin="anonymous" />
+      <audio ref={sePlayRef} src={`${import.meta.env.BASE_URL}needle-drop.mp3`} preload="auto" playsInline crossOrigin="anonymous" />
+      <audio ref={seStopRef} src={`${import.meta.env.BASE_URL}needle-up.mp3`} preload="auto" playsInline crossOrigin="anonymous" />
     </div>
   );
 }
